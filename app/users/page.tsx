@@ -9,7 +9,8 @@ import { cn } from "@/lib/utils";
 
 
 interface UserData {
-    id: string;
+    _id: string;
+    id?: string; // For backward compatibility if needed
     name: string;
     email: string;
     password?: string;
@@ -24,14 +25,7 @@ interface UserData {
     address?: string;
 }
 
-const INITIAL_USERS: UserData[] = [
-    { id: "1", name: "Bondi", email: "bondi@moreexperts.com", status: "Active", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky", package: "Premium" },
-    { id: "2", name: "David", email: "david@moreexperts.com", status: "Active", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix", package: "Golden" },
-    { id: "3", name: "Lily", email: "lily@moreexperts.com", status: "Active", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Lily", package: "Silver" },
-    { id: "4", name: "Sarah", email: "sarah@moreexperts.com", status: "Active", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah", package: "Premium 2" },
-    { id: "5", name: "Mike", email: "mike@moreexperts.com", status: "Active", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mike", package: "Golden 2" },
-    { id: "6", name: "Anna", email: "anna@moreexperts.com", status: "Inactive", avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Anna", package: "Silver 2" },
-];
+const INITIAL_USERS: UserData[] = [];
 
 const getPackageStyles = (pkg: string) => {
     switch (pkg) {
@@ -117,39 +111,109 @@ export default function UsersPage() {
         }
     }, [router]);
 
+    const fetchUsers = async () => {
+        try {
+            const res = await fetch("/api/users");
+            const data = await res.json();
+            setUsers(data);
+        } catch (error) {
+            console.error("Failed to fetch users:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (!isLoading) {
+            fetchUsers();
+        }
+    }, [isLoading]);
+
     if (isLoading) return null;
 
-    const handleAddUser = (e: React.FormEvent) => {
+    const handleAddUser = async (e: React.FormEvent) => {
         e.preventDefault();
-        const user: UserData = {
-            id: Math.random().toString(36).substr(2, 9),
-            name: newUser.name,
-            email: newUser.email,
-            password: newUser.password,
-            status: newUser.status,
-            avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${newUser.name}`,
-        };
-        setUsers([user, ...users]);
-        setIsModalOpen(false);
-        setNewUser({ name: "", email: "", password: "", status: "Active" });
-        setNotification({ message: "User added successfully", type: 'success' });
+        try {
+            const res = await fetch("/api/users", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ...newUser,
+                    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${newUser.name}`,
+                }),
+            });
+            if (res.ok) {
+                const createdUser = await res.json();
+                setUsers([createdUser, ...users]);
+                setIsModalOpen(false);
+                setNewUser({ name: "", email: "", password: "", status: "Active" });
+                setNotification({ message: "User added successfully", type: 'success' });
+            }
+        } catch (error) {
+            setNotification({ message: "Failed to add user", type: 'error' });
+        }
     };
 
-    const handleUpdateUser = (e: React.FormEvent) => {
+    const handleUpdateUser = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedUser) return;
-        setUsers(users.map(u => u.id === selectedUser.id ? selectedUser : u));
-        setIsDetailModalOpen(false);
-        setNotification({ message: "Profile updated successfully", type: 'success' });
+
+        // Auto-generate avatar based on gender
+        let updatedAvatar = selectedUser.avatar;
+        if (selectedUser.gender === "Male") {
+            updatedAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedUser.name}_male&gender=male`;
+        } else if (selectedUser.gender === "Female") {
+            updatedAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedUser.name}_female&gender=female`;
+        } else {
+            updatedAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedUser.name}`;
+        }
+
+        const userToUpdate = { ...selectedUser, avatar: updatedAvatar };
+
+        try {
+            const res = await fetch(`/api/users/${selectedUser._id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(userToUpdate),
+            });
+            if (res.ok) {
+                const updatedUser = await res.json();
+                setUsers(users.map(u => u._id === updatedUser._id ? updatedUser : u));
+                setIsDetailModalOpen(false);
+                setNotification({ message: "Profile updated successfully", type: 'success' });
+            }
+        } catch (error) {
+            setNotification({ message: "Failed to update profile", type: 'error' });
+        }
     };
 
-    const handleToggleStatus = (e: React.MouseEvent, userId: string) => {
+    const handleToggleStatus = async (e: React.MouseEvent, user: UserData) => {
         e.stopPropagation();
-        setUsers(users.map(u =>
-            u.id === userId
-                ? { ...u, status: u.status === "Active" ? "Inactive" : "Active" }
-                : u
-        ));
+        const newStatus = user.status === "Active" ? "Inactive" : "Active";
+        try {
+            const res = await fetch(`/api/users/${user._id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: newStatus }),
+            });
+            if (res.ok) {
+                setUsers(users.map(u => u._id === user._id ? { ...u, status: newStatus } : u));
+            }
+        } catch (error) {
+            setNotification({ message: "Failed to update status", type: 'error' });
+        }
+    };
+
+    const handleDeleteUser = async (e: React.MouseEvent, userId: string) => {
+        e.stopPropagation();
+        if (!confirm("Are you sure you want to delete this user?")) return;
+        try {
+            const res = await fetch(`/api/users/${userId}`, { method: "DELETE" });
+            if (res.ok) {
+                setUsers(users.filter(u => u._id !== userId));
+                setNotification({ message: "User deleted successfully", type: 'success' });
+            }
+        } catch (error) {
+            setNotification({ message: "Failed to delete user", type: 'error' });
+        }
     };
 
     const filteredUsers = users.filter(user =>
@@ -222,7 +286,7 @@ export default function UsersPage() {
                                     layout
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    key={user.id}
+                                    key={user._id}
                                     className="hover:bg-ash/5 dark:hover:bg-ash/10 transition-colors group border-b border-ash/5 last:border-0"
                                 >
                                     <td className="px-10 py-8">
@@ -254,7 +318,7 @@ export default function UsersPage() {
                                     <td className="px-10 py-8">
                                         <div className="flex items-center gap-3">
                                             <button
-                                                onClick={(e) => handleToggleStatus(e, user.id)}
+                                                onClick={(e) => handleToggleStatus(e, user)}
                                                 className={cn(
                                                     "relative w-12 h-6 rounded-full transition-colors duration-200 focus:outline-none",
                                                     user.status === 'Active' ? "bg-emerald-500/20" : "bg-zinc-200 dark:bg-zinc-800"
@@ -292,7 +356,10 @@ export default function UsersPage() {
                                             >
                                                 <LayersPlus className="w-4 h-4 text-zinc-400" />
                                             </button>
-                                            <button className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">
+                                            <button
+                                                onClick={(e) => handleDeleteUser(e, user._id)}
+                                                className="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors"
+                                            >
                                                 <Trash2 className="w-4 h-4 text-red-400" />
                                             </button>
                                         </div>

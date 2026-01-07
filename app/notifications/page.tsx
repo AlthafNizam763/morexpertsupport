@@ -16,20 +16,25 @@ interface Notification {
     isRead: boolean;
 }
 
-const INITIAL_NOTIFICATIONS: Notification[] = [
-    { id: "1", title: "App Update v2.4.0", description: "We've improved the live chat speed and added support for document uploads in user profiles.", time: "2 mins ago", type: "update", isRead: false },
-    { id: "2", title: "Special Offer: Premium Upgrade", description: "Get 40% off on all Premium package upgrades for your users this week.", time: "1 hour ago", type: "offer", isRead: false },
-    { id: "3", title: "New Feature: Voice Support", description: "Voice calling is now available for all Platinum tier members.", time: "3 hours ago", type: "update", isRead: true },
-    { id: "4", title: "Offer Expiring Soon", description: "The 'Early Bird' discount for Silver 2 packages expires in 24 hours.", time: "5 hours ago", type: "offer", isRead: true },
-];
+const INITIAL_NOTIFICATIONS: Notification[] = [];
 
 export default function NotificationsPage() {
     const [notifications, setNotifications] = useState<Notification[]>(INITIAL_NOTIFICATIONS);
     const [isBroadcastModalOpen, setIsBroadcastModalOpen] = useState(false);
-    const [newNotif, setNewNotif] = useState({ title: "", description: "", type: "update" as const });
+    const [newNotif, setNewNotif] = useState<{ title: string; description: string; type: "update" | "offer" }>({ title: "", description: "", type: "update" });
     const [isSending, setIsSending] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
+
+    const fetchNotifications = async () => {
+        try {
+            const res = await fetch("/api/notifications");
+            const data = await res.json();
+            setNotifications(data);
+        } catch (error) {
+            console.error("Failed to fetch notifications:", error);
+        }
+    };
 
     useEffect(() => {
         const auth = localStorage.getItem("more_auth");
@@ -37,26 +42,32 @@ export default function NotificationsPage() {
             router.push("/");
         } else {
             setIsLoading(false);
+            fetchNotifications();
         }
     }, [router]);
 
     if (isLoading) return null;
 
-    const handleBroadcast = () => {
+    const handleBroadcast = async () => {
         if (!newNotif.title || !newNotif.description) return;
         setIsSending(true);
-        setTimeout(() => {
-            const broadcasted: Notification = {
-                id: Math.random().toString(36).substr(2, 9),
-                ...newNotif,
-                time: "Just now",
-                isRead: false
-            };
-            setNotifications([broadcasted, ...notifications]);
+        try {
+            const res = await fetch("/api/notifications", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newNotif),
+            });
+            if (res.ok) {
+                const broadcasted = await res.json();
+                setNotifications([broadcasted, ...notifications]);
+                setIsBroadcastModalOpen(false);
+                setNewNotif({ title: "", description: "", type: "update" });
+            }
+        } catch (error) {
+            console.error("Failed to broadcast:", error);
+        } finally {
             setIsSending(false);
-            setIsBroadcastModalOpen(false);
-            setNewNotif({ title: "", description: "", type: "update" });
-        }, 1500);
+        }
     };
 
     const markAsRead = (id: string) => {
