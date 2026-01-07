@@ -1,58 +1,72 @@
 "use client";
 
-import { Home, MessageSquare, FileText, Settings, Clock, Menu } from "lucide-react";
+import { Home, MessageSquare, FileText, Settings, Clock, Menu, Users, Bell, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const NAV_ITEMS = [
-    { icon: Home, label: "Dashboard", href: "/" },
+    { icon: Home, label: "Dashboard", href: "/dashboard" },
+    { icon: Users, label: "Users", href: "/users" },
+    { icon: Bell, label: "Notifications", href: "/notifications" },
     { icon: FileText, label: "Services", href: "#" },
-    { icon: MessageSquare, label: "Chat", href: "#" },
+    { icon: MessageSquare, label: "Chat", href: "/chat" },
     { icon: Clock, label: "History", href: "#" },
     { icon: Settings, label: "Settings", href: "#" },
 ];
 
 export function Sidebar() {
     const pathname = usePathname();
+    const router = useRouter();
+
+    const handleLogout = () => {
+        localStorage.removeItem("more_auth");
+        router.push("/");
+    };
 
     return (
-        <div className="w-20 lg:w-24 h-screen bg-black flex flex-col items-center py-8 fixed left-0 top-0 z-[60]">
-            <div className="mb-12">
-                <Menu className="w-6 h-6 text-zinc-500 cursor-pointer hover:text-white transition-colors" />
+        <div className="w-24 h-screen bg-black flex flex-col items-center py-10 fixed left-0 top-0 z-[60]">
+            <div className="mb-10">
+                <Menu className="w-6 h-6 text-ash cursor-pointer hover:text-white transition-colors" />
             </div>
 
-            <div className="flex-1 flex flex-col gap-8">
-                <div className="bg-white rounded-2xl p-3 flex items-center justify-center shadow-lg group cursor-pointer hover:scale-105 transition-transform">
-                    <img src="/logo.png" alt="Logo" className="w-6 h-6 object-contain" />
-                </div>
+            <nav className="flex flex-col gap-8">
+                {NAV_ITEMS.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                        <Link
+                            key={item.label}
+                            href={item.href}
+                            className={cn(
+                                "w-14 h-14 rounded-[1.25rem] flex items-center justify-center transition-all duration-300 group relative",
+                                isActive
+                                    ? "bg-slate-blue text-white shadow-2xl scale-110 shadow-slate-blue/40"
+                                    : "text-ash hover:bg-ash/20 hover:text-gray-light"
+                            )}
+                        >
+                            <item.icon className={cn("w-6 h-6", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
 
-                <nav className="flex flex-col gap-6">
-                    {NAV_ITEMS.map((item) => {
-                        const isActive = pathname === item.href;
-                        return (
-                            <Link
-                                key={item.label}
-                                href={item.href}
-                                className={cn(
-                                    "p-3 rounded-2xl transition-all duration-300 group relative",
-                                    isActive
-                                        ? "bg-white text-black"
-                                        : "text-zinc-500 hover:text-white hover:bg-zinc-900"
-                                )}
-                            >
-                                <item.icon className="w-6 h-6" />
-                                <span className="absolute left-full ml-4 px-2 py-1 bg-white text-black text-xs font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none shadow-xl">
-                                    {item.label}
-                                </span>
-                            </Link>
-                        );
-                    })}
-                </nav>
-            </div>
+                            {/* Label Tooltip */}
+                            <span className="absolute left-full ml-6 px-3 py-1.5 bg-dark text-white text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none uppercase tracking-widest border border-ash/20 shadow-2xl">
+                                {item.label}
+                            </span>
+                        </Link>
+                    );
+                })}
+            </nav>
 
-            <div className="mt-auto">
-                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-zinc-800 cursor-pointer hover:border-white transition-colors">
+            <div className="mt-auto flex flex-col items-center gap-8 pb-10">
+                <button
+                    onClick={handleLogout}
+                    className="w-14 h-14 rounded-[1.25rem] flex items-center justify-center text-ash hover:bg-red-light hover:text-black transition-all duration-300 group relative"
+                >
+                    <LogOut className="w-6 h-6 stroke-[2px]" />
+                    <span className="absolute left-full ml-6 px-3 py-1.5 bg-secondary text-white text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none uppercase tracking-widest shadow-2xl">
+                        Logout
+                    </span>
+                </button>
+
+                <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-dark cursor-pointer hover:border-white transition-all transform hover:scale-110 shadow-lg">
                     <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky" alt="Avatar" className="w-full h-full object-cover" />
                 </div>
             </div>
