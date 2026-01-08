@@ -9,10 +9,10 @@ const NAV_ITEMS = [
     { icon: Home, label: "Dashboard", href: "/dashboard" },
     { icon: Users, label: "Users", href: "/users" },
     { icon: Bell, label: "Notifications", href: "/notifications" },
-    { icon: FileText, label: "Services", href: "#" },
-    { icon: MessageSquare, label: "Chat", href: "/chat" },
-    { icon: Clock, label: "History", href: "#" },
-    { icon: Settings, label: "Settings", href: "#" },
+    // { icon: FileText, label: "Services", href: "#" },
+    // { icon: MessageSquare, label: "Chat", href: "/chat" },
+    // { icon: Clock, label: "History", href: "#" },
+    // { icon: Settings, label: "Settings", href: "#" },
 ];
 
 export function Sidebar() {
@@ -66,9 +66,9 @@ export function Sidebar() {
                     </span>
                 </button>
 
-                <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-dark cursor-pointer hover:border-white transition-all transform hover:scale-110 shadow-lg flex items-center justify-center bg-zinc-900">
+                {/* <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-dark cursor-pointer hover:border-white transition-all transform hover:scale-110 shadow-lg flex items-center justify-center bg-zinc-900">
                     <User className="w-6 h-6 text-ash" />
-                </div>
+                </div> */}
             </div>
         </div>
     );
