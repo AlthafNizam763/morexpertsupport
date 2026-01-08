@@ -10,7 +10,7 @@ The app is used after initial contact via WhatsApp.
 Users log in using a User ID and Passkey provided by MoRe Experts.
 The primary service is Resume Making.
 All post-login communication and updates happen inside the app.
-Packages include Silver, Silver 2nd, Golden, Golden 2nd, Premium, and Premium 2nd.
+Packages include Silver, Silver2nd, Golden, Golden2nd, Premium, and Premium2nd.
 Resume Making shows PDF and/or Word documents based on the selected package.
 Cover Letter is not shown inside Resume Making.
 Users can view document status (Completed, Pending, In Progress) and download available files.

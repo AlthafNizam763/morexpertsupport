@@ -15,7 +15,13 @@ interface UserData {
     email: string;
     password?: string;
     status: "Active" | "Inactive";
-    avatar: string;
+    profilePic?: string;
+    documents?: {
+        idProof?: string;
+        serviceGuide?: string;
+        contract?: string;
+        coverLetter?: string;
+    };
     // Detail Fields
     package?: string;
     dob?: string;
@@ -31,56 +37,83 @@ const getPackageStyles = (pkg: string) => {
     switch (pkg) {
         case "Silver":
             return "bg-gradient-to-br from-[#C0C0C0] to-[#8E8E8E] text-white border-white/20";
-        case "Silver 2":
+        case "Silver2":
             return "bg-gradient-to-br from-[#757575] to-[#424242] text-white border-white/10";
         case "Golden":
             return "bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D] text-white border-[#F5A623]/50";
-        case "Golden 2":
+        case "Golden2":
             return "bg-gradient-to-br from-[#F5A623] to-[#D48806] text-black border-black/10 shadow-sm";
         case "Premium":
             return "bg-gradient-to-br from-[#0F0F0B] to-[#1C1C1C] text-white border-[#D4AF37]/50";
-        case "Premium 2":
+        case "Premium2":
             return "bg-gradient-to-br from-[#2C0A3B] to-[#0F0F0F] text-white border-[#E1BEE7]/50";
         default:
             return "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 border-transparent";
     }
 };
 
-const DocumentCard = ({ title, sub, icon: Icon, color, iconColor }: { title: string, sub: string, icon: any, color: string, iconColor: string }) => {
-    const [isUploaded, setIsUploaded] = useState(false);
+const DocumentCard = ({ id, title, sub, icon: Icon, color, iconColor, onUpload, onDelete, isUploaded: initialUploaded }: { id: string, title: string, sub: string, icon: any, color: string, iconColor: string, onUpload: (data: string) => void, onDelete: () => void, isUploaded?: boolean }) => {
+    const [isUploaded, setIsUploaded] = useState(initialUploaded || false);
+
+    useEffect(() => {
+        setIsUploaded(initialUploaded || false);
+    }, [initialUploaded]);
 
     return (
-        <label className="relative flex items-center gap-4 p-4 rounded-3xl bg-secondary-white dark:bg-dark border border-ash/5 hover:border-slate-blue/30 transition-all group cursor-pointer overflow-hidden">
-            <input
-                type="file"
-                className="hidden"
-                onChange={(e) => {
-                    if (e.target.files?.[0]) {
-                        setIsUploaded(true);
-                        setTimeout(() => setIsUploaded(false), 3000); // Visual feedback
-                    }
-                }}
-            />
-            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110", color)}>
-                <Icon className={cn("w-6 h-6", iconColor)} />
-            </div>
-            <div className="flex-1">
-                <h5 className="text-sm font-bold truncate">{title}</h5>
-                <p className="text-[10px] font-bold text-ash uppercase tracking-tight">
-                    {isUploaded ? "File Selected" : sub}
-                </p>
-            </div>
-            <div className="p-2.5 bg-white dark:bg-zinc-800 rounded-xl shadow-sm transition-all group-hover:bg-slate-blue group-hover:text-white">
-                {isUploaded ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                ) : (
-                    <UploadCloud className="w-4 h-4 text-ash group-hover:text-white" />
-                )}
-            </div>
+        <div className="relative group/card">
+            <label htmlFor={id} className="relative flex items-center gap-4 p-4 rounded-3xl bg-secondary-white dark:bg-dark border border-ash/5 hover:border-slate-blue/30 transition-all group cursor-pointer overflow-hidden">
+                <input
+                    id={id}
+                    type="file"
+                    className="hidden"
+                    onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                                const base64 = reader.result as string;
+                                onUpload(base64);
+                                setIsUploaded(true);
+                            };
+                            reader.readAsDataURL(file);
+                        }
+                    }}
+                />
+                <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110", color)}>
+                    <Icon className={cn("w-6 h-6", iconColor)} />
+                </div>
+                <div className="flex-1">
+                    <h5 className="text-sm font-bold truncate">{title}</h5>
+                    <p className="text-[10px] font-bold text-ash uppercase tracking-tight">
+                        {isUploaded ? "File Uploaded" : sub}
+                    </p>
+                </div>
+                <div className="p-2.5 bg-white dark:bg-zinc-800 rounded-xl shadow-sm transition-all group-hover:bg-slate-blue group-hover:text-white">
+                    {isUploaded ? (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                    ) : (
+                        <UploadCloud className="w-4 h-4 text-ash group-hover:text-white" />
+                    )}
+                </div>
 
-            {/* Hover Backdrop Overlay */}
-            <div className="absolute inset-0 bg-slate-blue/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-        </label>
+                {/* Hover Backdrop Overlay */}
+                <div className="absolute inset-0 bg-slate-blue/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+            </label>
+            {isUploaded && (
+                <button
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        onDelete();
+                        setIsUploaded(false);
+                    }}
+                    className="absolute -top-2 -right-2 p-2 bg-red-500 text-white rounded-full shadow-lg opacity-0 group-hover/card:opacity-100 transition-all hover:scale-110 z-10"
+                    title="Delete Document"
+                >
+                    <Trash2 className="w-3 h-3" />
+                </button>
+            )}
+        </div>
     );
 };
 
@@ -90,7 +123,7 @@ export default function UsersPage() {
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
     const [searchTerm, setSearchTerm] = useState("");
-    const [newUser, setNewUser] = useState({ name: "", email: "", password: "", status: "Active" });
+    const [newUser, setNewUser] = useState<{ name: string, email: string, password: string, status: string, profilePic?: string, id?: string, documents?: UserData['documents'] }>({ name: "", email: "", password: "", status: "Active" });
     const [isLoading, setIsLoading] = useState(true);
     const [notification, setNotification] = useState<{ message: string, type: 'success' | 'error' } | null>(null);
     const router = useRouter();
@@ -137,7 +170,6 @@ export default function UsersPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     ...newUser,
-                    avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${newUser.name}`,
                 }),
             });
             if (res.ok) {
@@ -156,17 +188,13 @@ export default function UsersPage() {
         e.preventDefault();
         if (!selectedUser) return;
 
-        // Auto-generate avatar based on gender
-        let updatedAvatar = selectedUser.avatar;
-        if (selectedUser.gender === "Male") {
-            updatedAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedUser.name}_male&gender=male`;
-        } else if (selectedUser.gender === "Female") {
-            updatedAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedUser.name}_female&gender=female`;
-        } else {
-            updatedAvatar = `https://api.dicebear.com/7.x/avataaars/svg?seed=${selectedUser.name}`;
-        }
+        const userToUpdate: any = { ...selectedUser };
 
-        const userToUpdate = { ...selectedUser, avatar: updatedAvatar };
+        // Check if package has changed
+        const originalUser = users.find(u => u._id === selectedUser._id);
+        if (originalUser && originalUser.package !== selectedUser.package) {
+            userToUpdate.createdAt = new Date();
+        }
 
         try {
             const res = await fetch(`/api/users/${selectedUser._id}`, {
@@ -292,7 +320,13 @@ export default function UsersPage() {
                                     <td className="px-10 py-8">
                                         <div className="flex items-center gap-6">
                                             <div className="relative">
-                                                <img src={user.avatar} className="w-14 h-14 rounded-2xl bg-zinc-100 dark:bg-zinc-800" />
+                                                {user.profilePic ? (
+                                                    <img src={user.profilePic} className="w-14 h-14 rounded-2xl object-cover bg-zinc-100 dark:bg-zinc-800" />
+                                                ) : (
+                                                    <div className="w-14 h-14 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
+                                                        <User className="w-6 h-6 text-zinc-400" />
+                                                    </div>
+                                                )}
                                                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-black rounded-full" />
                                             </div>
                                             <div>
@@ -415,6 +449,20 @@ export default function UsersPage() {
                                 </div>
 
                                 <div className="space-y-2">
+                                    <label className="text-xs font-bold text-ash uppercase tracking-widest pl-1">Document ID</label>
+                                    <div className="relative">
+                                        <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ash" />
+                                        <input
+                                            type="text"
+                                            placeholder="Expert ID / National ID"
+                                            value={newUser.id || ""}
+                                            onChange={(e) => setNewUser({ ...newUser, id: e.target.value })}
+                                            className="w-full bg-secondary-white dark:bg-dark border border-ash/5 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-slate-blue/20 transition-all text-sm font-bold"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
                                     <label className="text-xs font-bold text-ash uppercase tracking-widest pl-1">Email Address</label>
                                     <div className="relative">
                                         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ash" />
@@ -441,6 +489,41 @@ export default function UsersPage() {
                                             onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
                                             className="w-full bg-secondary-white dark:bg-dark border border-ash/10 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-slate-blue transition-all text-sm font-medium"
                                         />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-xs font-bold text-ash uppercase tracking-widest pl-1">Profile Picture</label>
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden border border-ash/10">
+                                            {newUser.profilePic ? (
+                                                <img src={newUser.profilePic} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <User className="w-6 h-6 text-ash" />
+                                            )}
+                                        </div>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onloadend = () => {
+                                                        setNewUser({ ...newUser, profilePic: reader.result as string });
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }}
+                                            className="hidden"
+                                            id="add-user-pic"
+                                        />
+                                        <label
+                                            htmlFor="add-user-pic"
+                                            className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 rounded-xl text-xs font-bold cursor-pointer hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+                                        >
+                                            Upload Picture
+                                        </label>
                                     </div>
                                 </div>
 
@@ -474,7 +557,37 @@ export default function UsersPage() {
                         >
                             <div className="flex items-center justify-between mb-10">
                                 <div className="flex items-center gap-6">
-                                    <img src={selectedUser.avatar} className="w-20 h-20 rounded-[1.75rem] bg-zinc-100 dark:bg-zinc-800" />
+                                    <div className="relative group">
+                                        <div className="w-20 h-20 rounded-[1.75rem] bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center overflow-hidden">
+                                            {selectedUser.profilePic ? (
+                                                <img src={selectedUser.profilePic} className="w-full h-full object-cover" />
+                                            ) : (
+                                                <User className="w-8 h-8 text-zinc-400" />
+                                            )}
+                                        </div>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            id="edit-user-pic"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) {
+                                                    const reader = new FileReader();
+                                                    reader.onloadend = () => {
+                                                        setSelectedUser({ ...selectedUser, profilePic: reader.result as string });
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }}
+                                        />
+                                        <label
+                                            htmlFor="edit-user-pic"
+                                            className="absolute inset-0 flex items-center justify-center bg-black/40 text-white rounded-[1.75rem] opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity"
+                                        >
+                                            <UploadCloud className="w-6 h-6" />
+                                        </label>
+                                    </div>
                                     <div>
                                         <h2 className="text-2xl font-bold">{selectedUser.name}</h2>
                                         <p className="text-xs text-ash font-bold uppercase tracking-widest mt-1">Profile Details</p>
@@ -500,6 +613,20 @@ export default function UsersPage() {
                                 </div>
 
                                 <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-ash uppercase tracking-[0.2em] ml-1">Document ID</label>
+                                    <div className="relative">
+                                        <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ash" />
+                                        <input
+                                            type="text"
+                                            value={selectedUser.id || ""}
+                                            onChange={(e) => setSelectedUser({ ...selectedUser, id: e.target.value })}
+                                            placeholder="Expert ID / National ID"
+                                            className="w-full bg-secondary-white dark:bg-dark border border-ash/10 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-slate-blue transition-all text-sm font-bold"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
                                     <label className="text-[10px] font-black text-ash uppercase tracking-[0.2em] ml-1">Package</label>
                                     <div className="relative">
                                         <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ash" />
@@ -510,16 +637,16 @@ export default function UsersPage() {
                                         >
                                             <option value="">None</option>
                                             <optgroup label="Silver" className="bg-white dark:bg-zinc-900">
-                                                <option value="Silver">Silver 1</option>
-                                                <option value="Silver 2">Silver 2</option>
+                                                <option value="Silver">Silver1</option>
+                                                <option value="Silver2">Silver2</option>
                                             </optgroup>
                                             <optgroup label="Golden" className="bg-white dark:bg-zinc-900">
-                                                <option value="Golden">Golden 1</option>
-                                                <option value="Golden 2">Golden 2</option>
+                                                <option value="Golden">Golden1</option>
+                                                <option value="Golden2">Golden2</option>
                                             </optgroup>
                                             <optgroup label="Premium" className="bg-white dark:bg-zinc-900">
-                                                <option value="Premium">Premium 1</option>
-                                                <option value="Premium 2">Premium 2</option>
+                                                <option value="Premium">Premium1</option>
+                                                <option value="Premium2">Premium2</option>
                                             </optgroup>
                                         </select>
                                     </div>
@@ -583,6 +710,20 @@ export default function UsersPage() {
                                     </div>
                                 </div>
 
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black text-ash uppercase tracking-[0.2em] ml-1">Account Password</label>
+                                    <div className="relative">
+                                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ash" />
+                                        <input
+                                            type="text"
+                                            placeholder="Set new password"
+                                            value={selectedUser.password || ""}
+                                            onChange={(e) => setSelectedUser({ ...selectedUser, password: e.target.value })}
+                                            className="w-full bg-secondary-white dark:bg-dark border border-ash/10 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-slate-blue transition-all text-sm font-bold"
+                                        />
+                                    </div>
+                                </div>
+
                                 <div className="space-y-2 md:col-span-2">
                                     <label className="text-[10px] font-black text-ash uppercase tracking-[0.2em] ml-1">LinkedIn Profile Link</label>
                                     <div className="relative">
@@ -614,30 +755,54 @@ export default function UsersPage() {
                                     <h3 className="text-xs font-black text-ash uppercase tracking-[0.2em] ml-1">Documents</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <DocumentCard
+                                            id="doc-id-proof"
+                                            title="ID Proof"
+                                            sub="Click to upload ID Card"
+                                            icon={Shield}
+                                            color="bg-emerald-50 dark:bg-emerald-900/20"
+                                            iconColor="text-emerald-500"
+                                            onUpload={(data) => setSelectedUser({ ...selectedUser, documents: { ...(selectedUser.documents || {}), idProof: data } })}
+                                            onDelete={() => setSelectedUser({ ...selectedUser, documents: { ...(selectedUser.documents || {}), idProof: "" } })}
+                                            isUploaded={!!selectedUser.documents?.idProof}
+                                        />
+
+                                        <DocumentCard
+                                            id="doc-service-guide"
                                             title="Service Guide"
                                             sub="Click to upload PDF"
                                             icon={FileText}
                                             color="bg-red-50 dark:bg-red-900/20"
                                             iconColor="text-red-500"
+                                            onUpload={(data) => setSelectedUser({ ...selectedUser, documents: { ...(selectedUser.documents || {}), serviceGuide: data } })}
+                                            onDelete={() => setSelectedUser({ ...selectedUser, documents: { ...(selectedUser.documents || {}), serviceGuide: "" } })}
+                                            isUploaded={!!selectedUser.documents?.serviceGuide}
                                         />
 
                                         {selectedUser.package !== "Silver" && (
                                             <DocumentCard
+                                                id="doc-contract"
                                                 title="Contract"
                                                 sub="Click to upload DOCX"
                                                 icon={File}
                                                 color="bg-blue-50 dark:bg-blue-900/20"
                                                 iconColor="text-blue-500"
+                                                onUpload={(data) => setSelectedUser({ ...selectedUser, documents: { ...(selectedUser.documents || {}), contract: data } })}
+                                                onDelete={() => setSelectedUser({ ...selectedUser, documents: { ...(selectedUser.documents || {}), contract: "" } })}
+                                                isUploaded={!!selectedUser.documents?.contract}
                                             />
                                         )}
 
                                         {selectedUser.package !== "Silver" && selectedUser.package !== "Silver 2" && (
                                             <DocumentCard
+                                                id="doc-cover-letter"
                                                 title="Cover Letter"
                                                 sub="Click to upload PDF"
                                                 icon={Shield}
                                                 color="bg-orange-50 dark:bg-orange-900/20"
                                                 iconColor="text-orange-500"
+                                                onUpload={(data) => setSelectedUser({ ...selectedUser, documents: { ...(selectedUser.documents || {}), coverLetter: data } })}
+                                                onDelete={() => setSelectedUser({ ...selectedUser, documents: { ...(selectedUser.documents || {}), coverLetter: "" } })}
+                                                isUploaded={!!selectedUser.documents?.coverLetter}
                                             />
                                         )}
                                     </div>

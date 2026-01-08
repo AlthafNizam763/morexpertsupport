@@ -11,7 +11,7 @@ const MessageSchema = new Schema({
 const ConversationSchema = new Schema({
     participants: [{ type: String }], // User IDs or names
     userName: { type: String, required: true },
-    userAvatar: { type: String },
+    userProfilePic: { type: String },
     lastMessage: { type: String },
     lastMessageTime: { type: String },
     status: { type: String, enum: ["online", "offline"], default: "offline" },

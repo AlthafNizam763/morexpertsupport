@@ -16,7 +16,7 @@ type Message = {
 type ConversationData = {
     _id: string;
     userName: string;
-    userAvatar: string;
+    userProfilePic: string;
     lastMessage?: string;
     lastMessageTime?: string;
     status: "online" | "offline";
@@ -186,7 +186,7 @@ export function SupportChat({ isFullHeight }: { isFullHeight?: boolean }) {
                                 <motion.div layoutId="active-chat" className="absolute left-0 top-0 bottom-0 w-1 bg-slate-blue" />
                             )}
                             <div className="relative shrink-0">
-                                <img src={conv.userAvatar} className="w-14 h-14 rounded-2xl bg-ash/5 object-cover ring-1 ring-white/10" />
+                                <img src={conv.userProfilePic} className="w-14 h-14 rounded-2xl bg-ash/5 object-cover ring-1 ring-white/10" />
                                 <div className={cn(
                                     "absolute -bottom-1 -right-1 w-4 h-4 border-2 border-white dark:border-black rounded-full",
                                     conv.status === "online" ? "bg-emerald-500" : "bg-zinc-400"
@@ -219,7 +219,7 @@ export function SupportChat({ isFullHeight }: { isFullHeight?: boolean }) {
                 <div className="p-8 border-b border-ash/5 flex items-center justify-between bg-white/50 dark:bg-black/20 backdrop-blur-xl">
                     <div className="flex items-center gap-5">
                         <div className="w-14 h-14 rounded-2xl bg-ash/5 flex items-center justify-center ring-1 ring-white/10">
-                            {activeConversation && <img src={activeConversation.userAvatar} className="w-14 h-14 rounded-2xl" />}
+                            {activeConversation && <img src={activeConversation.userProfilePic} className="w-14 h-14 rounded-2xl" />}
                         </div>
                         <div>
                             <h3 className="font-black text-lg leading-tight tracking-tight uppercase italic">{activeConversation?.userName || "Select Chat"}</h3>

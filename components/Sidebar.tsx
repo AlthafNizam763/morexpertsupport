@@ -1,6 +1,6 @@
 "use client";
 
-import { Home, MessageSquare, FileText, Settings, Clock, Menu, Users, Bell, LogOut } from "lucide-react";
+import { Home, MessageSquare, FileText, Settings, Clock, Menu, Users, Bell, LogOut, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -66,8 +66,8 @@ export function Sidebar() {
                     </span>
                 </button>
 
-                <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-dark cursor-pointer hover:border-white transition-all transform hover:scale-110 shadow-lg">
-                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky" alt="Avatar" className="w-full h-full object-cover" />
+                <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-dark cursor-pointer hover:border-white transition-all transform hover:scale-110 shadow-lg flex items-center justify-center bg-zinc-900">
+                    <User className="w-6 h-6 text-ash" />
                 </div>
             </div>
         </div>

@@ -12,6 +12,7 @@ export async function GET() {
     }
 }
 
+
 export async function POST(request: Request) {
     try {
         await dbConnect();
@@ -20,5 +21,25 @@ export async function POST(request: Request) {
         return NextResponse.json(notification, { status: 201 });
     } catch (error) {
         return NextResponse.json({ error: "Failed to create notification" }, { status: 400 });
+    }
+}
+
+export async function DELETE(request: Request) {
+    try {
+        await dbConnect();
+        const { searchParams } = new URL(request.url);
+        const id = searchParams.get('id');
+
+        if (id === 'all') {
+            await Notification.deleteMany({});
+            return NextResponse.json({ message: "All notifications deleted" });
+        } else if (id) {
+            await Notification.findByIdAndDelete(id);
+            return NextResponse.json({ message: "Notification deleted" });
+        } else {
+            return NextResponse.json({ error: "Missing id parameter" }, { status: 400 });
+        }
+    } catch (error) {
+        return NextResponse.json({ error: "Failed to delete notification(s)" }, { status: 500 });
     }
 }

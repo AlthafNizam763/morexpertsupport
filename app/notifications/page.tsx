@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/Sidebar";
-import { Bell, Search, CheckCircle2, Clock, Info, AlertTriangle, Trash2, Check, Settings, MoreHorizontal } from "lucide-react";
+import { Bell, Search, CheckCircle2, Clock, Info, AlertTriangle, Trash2, Settings, MoreHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
+
 interface Notification {
-    id: string;
+    _id: string;
     title: string;
     description: string;
     time: string;
@@ -70,16 +71,28 @@ export default function NotificationsPage() {
         }
     };
 
-    const markAsRead = (id: string) => {
-        setNotifications(notifications.map(n => n.id === id ? { ...n, isRead: true } : n));
+
+
+    const deleteNotification = async (id: string) => {
+        try {
+            const res = await fetch(`/api/notifications?id=${id}`, { method: "DELETE" });
+            if (res.ok) {
+                setNotifications(notifications.filter(n => n._id !== id));
+            }
+        } catch (error) {
+            console.error("Failed to delete notification:", error);
+        }
     };
 
-    const deleteNotification = (id: string) => {
-        setNotifications(notifications.filter(n => n.id !== id));
-    };
-
-    const markAllRead = () => {
-        setNotifications(notifications.map(n => ({ ...n, isRead: true })));
+    const deleteAll = async () => {
+        try {
+            const res = await fetch("/api/notifications?id=all", { method: "DELETE" });
+            if (res.ok) {
+                setNotifications([]);
+            }
+        } catch (error) {
+            console.error("Failed to delete all notifications:", error);
+        }
     };
 
     const getIcon = (type: string) => {
@@ -118,10 +131,10 @@ export default function NotificationsPage() {
                                 Broadcast Notification
                             </button>
                             <button
-                                onClick={markAllRead}
+                                onClick={deleteAll}
                                 className="px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest text-ash hover:bg-ash/5 transition-all"
                             >
-                                Mark All Read
+                                Delete All
                             </button>
                         </div>
                     </div>
@@ -130,7 +143,7 @@ export default function NotificationsPage() {
                         <AnimatePresence initial={false}>
                             {notifications.map((notif) => (
                                 <motion.div
-                                    key={notif.id}
+                                    key={notif._id}
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
@@ -175,16 +188,8 @@ export default function NotificationsPage() {
                                         </div>
 
                                         <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
-                                            {!notif.isRead && (
-                                                <button
-                                                    onClick={() => markAsRead(notif.id)}
-                                                    className="p-3 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 rounded-2xl transition-all"
-                                                >
-                                                    <Check className="w-5 h-5" />
-                                                </button>
-                                            )}
                                             <button
-                                                onClick={() => deleteNotification(notif.id)}
+                                                onClick={() => deleteNotification(notif._id)}
                                                 className="p-3 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 rounded-2xl transition-all"
                                             >
                                                 <Trash2 className="w-5 h-5" />

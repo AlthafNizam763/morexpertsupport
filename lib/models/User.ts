@@ -1,8 +1,10 @@
 import mongoose, { Schema, model, models } from "mongoose";
 
 const UserSchema = new Schema({
+    id: { type: String },
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
+    password: { type: String },
     package: {
         type: String,
         enum: ["Silver 1", "Silver 2", "Golden", "Platinum", "Premium", "None"],
@@ -14,12 +16,18 @@ const UserSchema = new Schema({
     mobile: { type: String },
     linkedin: { type: String },
     address: { type: String },
-    documents: [{
-        name: { type: String },
-        status: { type: String, enum: ["Pending", "Uploaded", "Verified"], default: "Pending" },
-        uploadDate: { type: Date }
-    }]
+    profilePic: { type: String },
+    documents: {
+        idProof: { type: String },
+        serviceGuide: { type: String },
+        contract: { type: String },
+        coverLetter: { type: String }
+    }
 }, { timestamps: true });
+
+if (process.env.NODE_ENV === "development") {
+    delete models.User;
+}
 
 const User = models.User || model("User", UserSchema);
 export default User;
