@@ -3,14 +3,6 @@ import mongoose from "mongoose";
 const MONGODB_URI = process.env.MONGODB_URI!;
 const MONGODB_DB = process.env.MONGODB_DB!;
 
-if (!MONGODB_URI) {
-    throw new Error("Please define the MONGODB_URI environment variable inside .env");
-}
-
-if (!MONGODB_DB) {
-    throw new Error("Please define the MONGODB_DB environment variable inside .env");
-}
-
 /**
  * Global is used here to maintain a cached connection across hot reloads
  * in development. This prevents connections from growing exponentially
@@ -28,6 +20,14 @@ async function dbConnect() {
     }
 
     if (!cached.promise) {
+        if (!MONGODB_URI) {
+            throw new Error("Please define the MONGODB_URI environment variable inside .env");
+        }
+
+        if (!MONGODB_DB) {
+            throw new Error("Please define the MONGODB_DB environment variable inside .env");
+        }
+
         const opts = {
             bufferCommands: false,
             dbName: MONGODB_DB,
@@ -47,5 +47,7 @@ async function dbConnect() {
 
     return cached.conn;
 }
+
+
 
 export default dbConnect;
