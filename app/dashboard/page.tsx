@@ -63,14 +63,27 @@ export default function DashboardPage() {
                 fetch("/api/users"),
                 fetch("/api/notifications")
             ]);
-            const usersData = await usersRes.json();
-            const notifData = await notifRes.json();
 
-            setUsers(usersData);
-            setNotifications(notifData);
+            let usersData = [];
+            let notifData = [];
+
+            if (usersRes.ok) {
+                usersData = await usersRes.json();
+            }
+
+            if (notifRes.ok) {
+                notifData = await notifRes.json();
+            }
+
+            // Ensure data is array before setting state
+            setUsers(Array.isArray(usersData) ? usersData : []);
+            setNotifications(Array.isArray(notifData) ? notifData : []);
+
             setIsLoading(false);
         } catch (error) {
             console.error("Failed to fetch dashboard data:", error);
+            setUsers([]);
+            setNotifications([]);
             setIsLoading(false);
         }
     };

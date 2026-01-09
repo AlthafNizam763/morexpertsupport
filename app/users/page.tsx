@@ -147,10 +147,18 @@ export default function UsersPage() {
     const fetchUsers = async () => {
         try {
             const res = await fetch("/api/users");
+            // Handle non-200 responses
+            if (!res.ok) {
+                console.error("Failed to fetch users:", await res.text());
+                setUsers([]);
+                return;
+            }
             const data = await res.json();
-            setUsers(data);
+            // Ensure data is array
+            setUsers(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error("Failed to fetch users:", error);
+            setUsers([]);
         }
     };
 
