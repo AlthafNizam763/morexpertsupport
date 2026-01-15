@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/firebase";
 
+export const dynamic = 'force-dynamic';
+
+
 export async function PATCH(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
