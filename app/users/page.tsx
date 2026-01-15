@@ -19,6 +19,8 @@ interface UserData {
     documents?: {
         idProof?: string;
         serviceGuide?: string;
+        serviceGuide2?: string;
+        serviceGuide3?: string;
         contract?: string;
         coverLetter?: string;
     };
@@ -798,6 +800,33 @@ export default function UsersPage() {
                                             onDelete={() => setSelectedUser({ ...selectedUser, documents: { ...(selectedUser.documents || {}), serviceGuide: "" } })}
                                             isUploaded={!!selectedUser.documents?.serviceGuide}
                                         />
+
+                                        {(selectedUser.package === "Premium" || selectedUser.package === "Premium2") && (
+                                            <>
+                                                <DocumentCard
+                                                    id="doc-service-guide-2"
+                                                    title="Service Guide(BW)"
+                                                    sub="Click to upload PDF"
+                                                    icon={FileText}
+                                                    color="bg-red-50 dark:bg-red-900/20"
+                                                    iconColor="text-red-500"
+                                                    onUpload={(data) => setSelectedUser({ ...selectedUser, documents: { ...(selectedUser.documents || {}), serviceGuide2: data } })}
+                                                    onDelete={() => setSelectedUser({ ...selectedUser, documents: { ...(selectedUser.documents || {}), serviceGuide2: "" } })}
+                                                    isUploaded={!!((selectedUser.documents as any)?.serviceGuide2)}
+                                                />
+                                                <DocumentCard
+                                                    id="doc-service-guide-3"
+                                                    title="Service Guide(H)"
+                                                    sub="Click to upload PDF"
+                                                    icon={FileText}
+                                                    color="bg-red-50 dark:bg-red-900/20"
+                                                    iconColor="text-red-500"
+                                                    onUpload={(data) => setSelectedUser({ ...selectedUser, documents: { ...(selectedUser.documents || {}), serviceGuide3: data } })}
+                                                    onDelete={() => setSelectedUser({ ...selectedUser, documents: { ...(selectedUser.documents || {}), serviceGuide3: "" } })}
+                                                    isUploaded={!!((selectedUser.documents as any)?.serviceGuide3)}
+                                                />
+                                            </>
+                                        )}
 
                                         {selectedUser.package !== "Silver" && (
                                             <DocumentCard

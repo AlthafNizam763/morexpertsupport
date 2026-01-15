@@ -7,23 +7,15 @@ import Link from "next/link";
 import { Sidebar } from "@/components/Sidebar";
 import { cn } from "@/lib/utils";
 import {
-    Search,
     Bell,
-    Plus,
     ChevronDown,
-    FileText,
     MoreHorizontal,
-    CheckCircle2,
     Clock,
     Settings,
     User,
-    Mail,
-    Shield,
-    Activity,
-    Users,
     MapPin
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface UserData {
     _id: string;
@@ -43,11 +35,32 @@ interface Notification {
     isRead: boolean;
 }
 
+interface Feedback {
+    id: string;
+    createdAt: string;
+    feedbackText: string;
+    name: string;
+    profilePic: string;
+    rating: number;
+}
+
 export default function DashboardPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = useState(true);
     const [users, setUsers] = useState<UserData[]>([]);
     const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
+    const [currentFeedbackIndex, setCurrentFeedbackIndex] = useState(0);
+
+    useEffect(() => {
+        if (feedbacks.length <= 1) return;
+
+        const interval = setInterval(() => {
+            setCurrentFeedbackIndex((prev) => (prev + 1) % feedbacks.length);
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [feedbacks.length]);
 
     useEffect(() => {
         const auth = localStorage.getItem("more_auth");
@@ -60,13 +73,15 @@ export default function DashboardPage() {
 
     const fetchData = async () => {
         try {
-            const [usersRes, notifRes] = await Promise.all([
+            const [usersRes, notifRes, feedbackRes] = await Promise.all([
                 fetch("/api/users"),
-                fetch("/api/notifications")
+                fetch("/api/notifications"),
+                fetch("/api/feedbacks")
             ]);
 
             let usersData = [];
             let notifData = [];
+            let feedbackData = [];
 
             if (usersRes.ok) {
                 usersData = await usersRes.json();
@@ -76,15 +91,21 @@ export default function DashboardPage() {
                 notifData = await notifRes.json();
             }
 
+            if (feedbackRes.ok) {
+                feedbackData = await feedbackRes.json();
+            }
+
             // Ensure data is array before setting state
             setUsers(Array.isArray(usersData) ? usersData : []);
             setNotifications(Array.isArray(notifData) ? notifData : []);
+            setFeedbacks(Array.isArray(feedbackData) ? feedbackData : []);
 
             setIsLoading(false);
         } catch (error) {
             console.error("Failed to fetch dashboard data:", error);
             setUsers([]);
             setNotifications([]);
+            setFeedbacks([]);
             setIsLoading(false);
         }
     };
@@ -124,7 +145,8 @@ export default function DashboardPage() {
 
             <main className="flex-1 ml-24 p-8 w-full bg-gray-light min-h-screen">
                 {/* Header */}
-                <div className="flex items-center justify-end mb-8">
+                <div className="flex items-center justify-between mb-8">
+                    <h1 className="text-3xl font-bold text-slate-blue">More Expert Dashboard</h1>
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-3 bg-white p-1.5 pr-4 rounded-2xl shadow-sm">
                             <div className="w-10 h-10 rounded-xl bg-slate-blue/10 flex items-center justify-center text-slate-blue">
@@ -298,16 +320,59 @@ export default function DashboardPage() {
                             </div>
                             <div className="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/10 relative z-10">
                                 <div className="text-center">
+                                    <span className="block text-xs text-blue-200 mb-1">Feedback</span>
+                                    <span className="block font-bold">{feedbacks.length}</span>
+                                </div>
+                                <div className="text-center border-l border-white/10">
                                     <span className="block text-xs text-blue-200 mb-1">Resumes</span>
-                                    <span className="block font-bold">124</span>
+                                    <span className="block font-bold">2745</span>
                                 </div>
                                 <div className="text-center border-l border-white/10">
-                                    <span className="block text-xs text-blue-200 mb-1">Templates</span>
-                                    <span className="block font-bold">12</span>
+                                    <span className="block text-xs text-blue-200 mb-1">Placed Candidates</span>
+                                    <span className="block font-bold">86%</span>
                                 </div>
-                                <div className="text-center border-l border-white/10">
-                                    <span className="block text-xs text-blue-200 mb-1">Downloads</span>
-                                    <span className="block font-bold">852</span>
+                            </div>
+
+                            <div className="mt-8 pt-6 border-t border-white/10 relative z-10">
+                                <h4 className="text-sm font-bold opacity-80 mb-4">Recent Feedback</h4>
+                                <div className="h-20 relative">
+                                    <AnimatePresence mode="wait">
+                                        {feedbacks.length > 0 && feedbacks[currentFeedbackIndex] && (
+                                            <motion.div
+                                                key={feedbacks[currentFeedbackIndex].id}
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: -10 }}
+                                                transition={{ duration: 0.3 }}
+                                                className="absolute inset-0 flex gap-3 text-left"
+                                            >
+                                                <div className="w-8 h-8 rounded-full bg-white/10 flex-shrink-0">
+                                                    {feedbacks[currentFeedbackIndex].profilePic ? (
+                                                        <img src={feedbacks[currentFeedbackIndex].profilePic} alt={feedbacks[currentFeedbackIndex].name} className="w-full h-full rounded-full object-cover" />
+                                                    ) : (
+                                                        <User className="w-full h-full p-1.5 text-blue-100" />
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between mb-0.5">
+                                                        <h4 className="font-bold text-xs text-white truncate">{feedbacks[currentFeedbackIndex].name}</h4>
+                                                        <div className="flex text-yellow-400 scale-[0.7] origin-right">
+                                                            {[...Array(5)].map((_, i) => (
+                                                                <svg key={i} className={`w-3 h-3 ${i < feedbacks[currentFeedbackIndex].rating ? "fill-current" : "text-white/20"}`} viewBox="0 0 20 20">
+                                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                                </svg>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-[10px] text-blue-100 line-clamp-2 leading-relaxed">{feedbacks[currentFeedbackIndex].feedbackText}</p>
+                                                    <p className="text-[9px] text-blue-300/60 mt-1">{new Date(feedbacks[currentFeedbackIndex].createdAt).toLocaleDateString()}</p>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                    {feedbacks.length === 0 && (
+                                        <p className="text-center text-blue-200/60 text-xs py-2">No feedback yet.</p>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -369,9 +434,10 @@ export default function DashboardPage() {
                                 )}
                             </div>
                         </div>
+
                     </div>
-                </div >
-            </main >
-        </div >
+                </div>
+            </main>
+        </div>
     );
 }

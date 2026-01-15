@@ -7,7 +7,23 @@ export async function PATCH(
 ) {
     try {
         const { id } = await params;
-        const data = await request.json();
+        const rawData = await request.json();
+
+        // Sanitize data -> remove undefined which might cause "invalid nested entity" in Firestore
+        // Also handle cases where documents might have null/undefined values
+        const data = { ...rawData };
+        if (data.documents) {
+            const cleanDocs: any = {};
+            for (const [key, value] of Object.entries(data.documents)) {
+                if (value !== undefined && value !== null) {
+                    cleanDocs[key] = value;
+                }
+            }
+            data.documents = cleanDocs;
+        }
+
+        console.log("UPDATE USER DATA (Sanitized):", JSON.stringify(data, null, 2));
+
         const userRef = db.collection('users').doc(id);
 
         await userRef.update({
