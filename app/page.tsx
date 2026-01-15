@@ -26,7 +26,7 @@ export default function LoginPage() {
 
     // Simulate network delay
     setTimeout(() => {
-      if (userId === "bondi" && passkey === "123456") {
+      if (userId === "Ajmal@321" && passkey === "Expert321") {
         localStorage.setItem("more_auth", "true");
         localStorage.setItem("more_user", userId);
         router.push("/dashboard");
@@ -47,18 +47,18 @@ export default function LoginPage() {
         <div className="flex flex-col items-center mb-10">
           <div className="w-24 h-24 bg-white rounded-3xl flex items-center justify-center p-4 mb-6 shadow-2xl overflow-hidden border border-black/5">
             <img
-              src="https://api.dicebear.com/7.x/avataaars/svg?seed=MoRe"
+              src="https://api.dicebear.com/7.x/avataaars/svg?seed=User"
               alt="MoRe Experts Logo"
               className="w-full h-full object-contain"
             />
           </div>
-          <h1 className="text-3xl font-bold text-black dark:text-white tracking-tight">MoRe Experts</h1>
+          <h1 className="text-3xl font-bold text-slate-blue tracking-tight">MoRe Experts</h1>
           <p className="text-ash mt-2 text-sm font-medium uppercase tracking-[0.2em]">Support Portal</p>
         </div>
 
         <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-xl shadow-slate-blue/5">
           <div className="mb-8">
-            <h2 className="text-xl font-semibold text-black dark:text-white">Welcome back</h2>
+            <h2 className="text-xl font-semibold text-slate-blue">Welcome back</h2>
             <p className="text-ash text-sm mt-1">Please enter your credentials to continue</p>
           </div>
 
