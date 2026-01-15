@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send, User, Search, MoreHorizontal, Check, CheckCheck, Home } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 type Message = {
@@ -34,32 +34,65 @@ export function SupportChat({ isFullHeight }: { isFullHeight?: boolean }) {
     const [isLoadingMessages, setIsLoadingMessages] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const queryId = searchParams?.get('id');
 
     const activeConversation = conversations.find(c => c._id === activeId);
 
     const fetchConversations = async () => {
         try {
             const res = await fetch("/api/chat/conversations");
-            const data = await res.json();
-            setConversations(data);
-            if (data.length > 0 && !activeId) {
-                setActiveId(data[0]._id);
+            if (res.ok) {
+                const data = await res.json();
+                const convs = Array.isArray(data) ? data : [];
+                setConversations(convs);
+
+                if (convs.length > 0 && !activeId) {
+                    if (queryId) {
+                        // Check if queryId exists in fetched conversations
+                        const exists = convs.some((c: ConversationData) => c._id === queryId);
+                        if (exists) {
+                            setActiveId(queryId);
+                        } else {
+                            setActiveId(convs[0]._id);
+                        }
+                    } else {
+                        setActiveId(convs[0]._id);
+                    }
+                }
+            } else {
+                console.error("Failed to fetch conversations:", await res.text());
+                setConversations([]);
             }
         } catch (error) {
             console.error("Failed to fetch conversations:", error);
+            setConversations([]);
         } finally {
             setIsLoadingConv(false);
         }
     };
 
+    // React to queryId changes
+    useEffect(() => {
+        if (queryId) {
+            setActiveId(queryId);
+        }
+    }, [queryId]);
+
     const fetchMessages = async (id: string) => {
         setIsLoadingMessages(true);
         try {
             const res = await fetch(`/api/chat/messages?conversationId=${id}`);
-            const data = await res.json();
-            setMessages(data);
+            if (res.ok) {
+                const data = await res.json();
+                setMessages(Array.isArray(data) ? data : []);
+            } else {
+                console.error("Failed to fetch messages:", await res.text());
+                setMessages([]);
+            }
         } catch (error) {
             console.error("Failed to fetch messages:", error);
+            setMessages([]);
         } finally {
             setIsLoadingMessages(false);
         }
@@ -186,7 +219,13 @@ export function SupportChat({ isFullHeight }: { isFullHeight?: boolean }) {
                                 <motion.div layoutId="active-chat" className="absolute left-0 top-0 bottom-0 w-1 bg-slate-blue" />
                             )}
                             <div className="relative shrink-0">
-                                <img src={conv.userProfilePic} className="w-14 h-14 rounded-2xl bg-ash/5 object-cover ring-1 ring-white/10" />
+                                {conv.userProfilePic ? (
+                                    <img src={conv.userProfilePic} className="w-14 h-14 rounded-2xl bg-ash/5 object-cover ring-1 ring-white/10" />
+                                ) : (
+                                    <div className="w-14 h-14 rounded-2xl bg-ash/5 flex items-center justify-center ring-1 ring-white/10">
+                                        <User className="w-6 h-6 text-ash/40" />
+                                    </div>
+                                )}
                                 <div className={cn(
                                     "absolute -bottom-1 -right-1 w-4 h-4 border-2 border-white dark:border-black rounded-full",
                                     conv.status === "online" ? "bg-emerald-500" : "bg-zinc-400"

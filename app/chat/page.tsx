@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/Sidebar";
 import { SupportChat } from "@/components/SupportChat";
@@ -26,7 +26,9 @@ export default function ChatPage() {
             <Sidebar />
 
             <main className="flex-1 ml-24 flex flex-col h-screen overflow-hidden bg-white dark:bg-black">
-                <SupportChat isFullHeight />
+                <Suspense fallback={<div className="flex items-center justify-center h-full">Loading chat...</div>}>
+                    <SupportChat isFullHeight />
+                </Suspense>
             </main>
         </div>
     );

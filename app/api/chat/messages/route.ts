@@ -7,6 +7,8 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const conversationId = searchParams.get("conversationId");
 
+    console.log("GET /api/chat/messages - conversationId:", conversationId);
+
     if (!conversationId) {
         return NextResponse.json({ error: "Conversation ID is required" }, { status: 400 });
     }
@@ -14,13 +16,24 @@ export async function GET(request: Request) {
     try {
         const snapshot = await db.collection('messages')
             .where('conversationId', '==', conversationId)
-            .orderBy('createdAt', 'asc')
+            // .orderBy('createdAt', 'asc') // Removed to avoid index requirement
             .get();
 
-        const messages = snapshot.docs.map(doc => ({
-            _id: doc.id,
-            ...doc.data()
-        }));
+        console.log(`GET /api/chat/messages - Found ${snapshot.docs.length} messages`);
+
+        const messages = snapshot.docs
+            .map(doc => {
+                const data = doc.data();
+                return {
+                    _id: doc.id,
+                    ...data,
+                    // Safe convert potential Timestamps to strings
+                    createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
+                    timestamp: typeof data.timestamp === 'object' ? new Date((data.timestamp._seconds || 0) * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : data.timestamp
+                };
+            })
+            .sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
         return NextResponse.json(messages);
     } catch (error) {
         console.error("Error fetching messages:", error);
@@ -31,6 +44,8 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     try {
         const data = await request.json();
+        console.log("POST /api/chat/messages - Payload:", JSON.stringify(data));
+
         const messageData = {
             ...data,
             createdAt: new Date().toISOString(),

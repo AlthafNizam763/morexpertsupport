@@ -387,7 +387,33 @@ export default function UsersPage() {
                                     </td>
                                     <td className="px-8 py-5 text-right">
                                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors">
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    // Initiate chat
+                                                    const startChat = async () => {
+                                                        try {
+                                                            const res = await fetch("/api/chat/conversations", {
+                                                                method: "POST",
+                                                                headers: { "Content-Type": "application/json" },
+                                                                body: JSON.stringify({
+                                                                    userId: user._id,
+                                                                    userName: user.name,
+                                                                    userProfilePic: user.profilePic
+                                                                })
+                                                            });
+                                                            if (res.ok) {
+                                                                const conversation = await res.json();
+                                                                router.push(`/chat?id=${conversation._id}`);
+                                                            }
+                                                        } catch (error) {
+                                                            console.error("Failed to start chat:", error);
+                                                        }
+                                                    };
+                                                    startChat();
+                                                }}
+                                                className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition-colors"
+                                            >
                                                 <MessageSquare className="w-4 h-4 text-zinc-400" />
                                             </button>
                                             <button
