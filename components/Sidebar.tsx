@@ -10,7 +10,7 @@ const NAV_ITEMS = [
     { icon: Users, label: "Users", href: "/users" },
     { icon: Bell, label: "Notifications", href: "/notifications" },
     // { icon: FileText, label: "Services", href: "#" },
-    // { icon: MessageSquare, label: "Chat", href: "/chat" },
+    { icon: MessageSquare, label: "Chat", href: "/chat" },
     // { icon: Clock, label: "History", href: "#" },
     // { icon: Settings, label: "Settings", href: "#" },
 ];
@@ -25,9 +25,9 @@ export function Sidebar() {
     };
 
     return (
-        <div className="w-24 h-screen bg-black flex flex-col items-center py-10 fixed left-0 top-0 z-[60]">
+        <div className="w-24 h-screen bg-slate-blue flex flex-col items-center py-10 fixed left-0 top-0 z-[60] shadow-xl">
             <div className="mb-10">
-                <Menu className="w-6 h-6 text-ash cursor-pointer hover:text-white transition-colors" />
+                <Menu className="w-6 h-6 text-white cursor-pointer hover:scale-110 transition-transform" />
             </div>
 
             <nav className="flex flex-col gap-8">
@@ -40,14 +40,14 @@ export function Sidebar() {
                             className={cn(
                                 "w-14 h-14 rounded-[1.25rem] flex items-center justify-center transition-all duration-300 group relative",
                                 isActive
-                                    ? "bg-slate-blue text-white shadow-2xl scale-110 shadow-slate-blue/40"
-                                    : "text-ash hover:bg-ash/20 hover:text-gray-light"
+                                    ? "bg-white text-slate-blue shadow-lg scale-110"
+                                    : "text-white/70 hover:bg-white/10 hover:text-white"
                             )}
                         >
                             <item.icon className={cn("w-6 h-6", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />
 
                             {/* Label Tooltip */}
-                            <span className="absolute left-full ml-6 px-3 py-1.5 bg-dark text-white text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none uppercase tracking-widest border border-ash/20 shadow-2xl">
+                            <span className="absolute left-full ml-6 px-3 py-1.5 bg-secondary text-white text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none uppercase tracking-widest border border-ash/20 shadow-2xl">
                                 {item.label}
                             </span>
                         </Link>
@@ -58,7 +58,7 @@ export function Sidebar() {
             <div className="mt-auto flex flex-col items-center gap-8 pb-10">
                 <button
                     onClick={handleLogout}
-                    className="w-14 h-14 rounded-[1.25rem] flex items-center justify-center text-ash hover:bg-red-light hover:text-black transition-all duration-300 group relative"
+                    className="w-14 h-14 rounded-[1.25rem] flex items-center justify-center text-white/70 hover:bg-white/20 hover:text-white transition-all duration-300 group relative"
                 >
                     <LogOut className="w-6 h-6 stroke-[2px]" />
                     <span className="absolute left-full ml-6 px-3 py-1.5 bg-secondary text-white text-[10px] font-bold rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none uppercase tracking-widest shadow-2xl">

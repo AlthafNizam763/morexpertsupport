@@ -38,7 +38,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black flex items-center justify-center p-6 selection:bg-slate-blue selection:text-white">
+    <div className="min-h-screen bg-gray-light flex items-center justify-center p-6 selection:bg-slate-blue selection:text-white">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -56,7 +56,7 @@ export default function LoginPage() {
           <p className="text-ash mt-2 text-sm font-medium uppercase tracking-[0.2em]">Support Portal</p>
         </div>
 
-        <div className="bg-white dark:bg-dark border border-ash/10 rounded-3xl p-8 shadow-xl">
+        <div className="bg-white border border-slate-100 rounded-[2.5rem] p-8 shadow-xl shadow-slate-blue/5">
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-black dark:text-white">Welcome back</h2>
             <p className="text-ash text-sm mt-1">Please enter your credentials to continue</p>
@@ -75,7 +75,7 @@ export default function LoginPage() {
                   onChange={(e) => setUserId(e.target.value)}
                   placeholder="Enter User ID"
                   required
-                  className="w-full bg-secondary-white dark:bg-black border border-ash/10 rounded-2xl px-12 py-4 focus:outline-none focus:ring-2 focus:ring-slate-blue transition-all text-black dark:text-white placeholder:text-ash/50"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-12 py-4 focus:outline-none focus:ring-2 focus:ring-slate-blue transition-all placeholder:text-zinc-400 font-medium text-slate-900"
                 />
               </div>
             </div>
@@ -92,7 +92,7 @@ export default function LoginPage() {
                   onChange={(e) => setPasskey(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full bg-secondary-white dark:bg-black border border-ash/10 rounded-2xl px-12 py-4 focus:outline-none focus:ring-2 focus:ring-slate-blue transition-all text-black dark:text-white placeholder:text-ash/50"
+                  className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-12 py-4 focus:outline-none focus:ring-2 focus:ring-slate-blue transition-all placeholder:text-zinc-400 font-medium text-slate-900"
                 />
               </div>
             </div>
@@ -111,7 +111,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-slate-blue text-white rounded-2xl py-4 font-semibold flex items-center justify-center gap-2 hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg shadow-slate-blue/20"
+              className="w-full bg-slate-blue text-white rounded-2xl py-4 font-bold flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed group shadow-lg shadow-slate-blue/20"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

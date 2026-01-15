@@ -113,11 +113,11 @@ export default function NotificationsPage() {
     };
 
     return (
-        <div className="h-screen bg-white dark:bg-black font-sans flex text-black dark:text-white selection:bg-slate-blue selection:text-white overflow-hidden">
+        <div className="h-screen bg-gray-light font-sans flex text-black selection:bg-slate-blue selection:text-white overflow-hidden">
             <Sidebar />
 
-            <main className="flex-1 ml-24 h-screen overflow-hidden bg-white dark:bg-black p-10 flex flex-col">
-                <div className="max-w-[1200px] w-full mx-auto flex-1 flex flex-col overflow-hidden">
+            <main className="flex-1 ml-24 h-screen overflow-hidden bg-gray-light p-10 flex flex-col">
+                <div className="w-full mx-auto flex-1 flex flex-col overflow-hidden">
                     <div className="flex items-center justify-between mb-10 shrink-0">
                         <div className="flex items-center gap-12 flex-1">
                             <h1 className="text-[2.5rem] font-black tracking-tight uppercase italic">Notifications</h1>
@@ -126,7 +126,7 @@ export default function NotificationsPage() {
                                 <input
                                     type="text"
                                     placeholder="Search updates or offers..."
-                                    className="w-full bg-ash/5 dark:bg-dark border border-ash/5 rounded-3xl py-4 pl-12 pr-6 text-sm focus:outline-none focus:ring-2 focus:ring-slate-blue/20 transition-all placeholder:text-ash/30"
+                                    className="w-full bg-white border-transparent rounded-3xl py-3 pl-14 pr-6 text-sm focus:outline-none focus:ring-2 focus:ring-slate-blue/20 transition-all placeholder:text-zinc-400 shadow-sm font-medium"
                                 />
                             </div>
                         </div>
@@ -158,8 +158,8 @@ export default function NotificationsPage() {
                                     className={cn(
                                         "group flex items-center gap-8 p-8 rounded-[2.5rem] transition-all relative overflow-hidden border",
                                         notif.isRead
-                                            ? "bg-white dark:bg-black border-ash/5"
-                                            : "bg-slate-blue/5 dark:bg-slate-blue/10 border-slate-blue/20"
+                                            ? "bg-white border-slate-100 shadow-sm hover:shadow-md"
+                                            : "bg-white border-slate-blue/40 shadow-md shadow-slate-blue/5"
                                     )}
                                 >
                                     {!notif.isRead && (
@@ -173,7 +173,7 @@ export default function NotificationsPage() {
                                         <div className="flex items-center gap-3 mb-2">
                                             <h3 className={cn(
                                                 "font-black text-lg tracking-tight",
-                                                notif.isRead ? "text-ash/70" : "text-black dark:text-white"
+                                                notif.isRead ? "text-ash/70" : "text-black dark:text-slate-blue"
                                             )}>
                                                 {notif.title}
                                             </h3>
@@ -272,7 +272,7 @@ export default function NotificationsPage() {
                                                 value={newNotif.title}
                                                 onChange={(e) => setNewNotif({ ...newNotif, title: e.target.value })}
                                                 placeholder="e.g. System Performance Boost"
-                                                className="w-full bg-ash/5 dark:bg-black border border-ash/10 rounded-2xl py-5 px-6 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-slate-blue/20 transition-all"
+                                                className="w-full bg-ash/5 dark:bg-black border border-ash/10 rounded-2xl py-5 px-6 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-slate-blue/20 transition-all text-slate-blue"
                                             />
                                         </div>
 
@@ -283,7 +283,7 @@ export default function NotificationsPage() {
                                                 value={newNotif.description}
                                                 onChange={(e) => setNewNotif({ ...newNotif, description: e.target.value })}
                                                 placeholder="What should the users know about this?"
-                                                className="w-full bg-ash/5 dark:bg-black border border-ash/10 rounded-2xl py-5 px-6 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-slate-blue/20 transition-all resize-none"
+                                                className="w-full bg-ash/5 dark:bg-black border border-ash/10 rounded-2xl py-5 px-6 font-bold text-sm focus:outline-none focus:ring-2 focus:ring-slate-blue/20 transition-all resize-none text-slate-blue"
                                             />
                                         </div>
                                     </div>

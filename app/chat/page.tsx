@@ -15,6 +15,8 @@ export default function ChatPage() {
             router.push("/");
         } else {
             setIsLoading(false);
+            // Initialize Socket.IO server
+            fetch("/api/socket/io");
         }
     }, [router]);
 

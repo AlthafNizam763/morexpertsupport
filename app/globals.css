@@ -8,25 +8,29 @@
   --color-black: #161618;
   --color-pink: #ff49db;
   --color-white: #ffffff;
-  --color-ash: #3E3E3F;
+  --color-ash: #8FA0B5;
+  /* Lighter ash for better contrast on blue */
   --color-green: #027A48;
   --color-green-light: #ECFDF3;
   --color-red-light: #FEF3F2;
-  --color-gray-light: #ededed;
-  --color-slate-blue: #6A4BFC;
+  --color-gray-light: #F4F7FE;
+  /* Light blue-gray background */
+  --color-slate-blue: #4D72F0;
+  /* Royal Blue */
   --color-stale: #7939EF;
-  --color-primary: #6A4BFC;
-  --color-secondary: #111E2C;
-  --color-accent: #6A4BFC;
+  --color-primary: #4D72F0;
+  --color-secondary: #0B1437;
+  /* Darker blue-black */
+  --color-accent: #4D72F0;
   --color-secondary-white: #F4F4F4;
   --color-secondary-dark: #3E3E3F;
   --color-dark: #242424;
 }
 
 :root {
-  --background: var(--color-white);
-  --foreground: var(--color-black);
-  --primary-color: var(--color-slate-blue);
+  --background: var(--color-gray-light);
+  --foreground: var(--color-secondary);
+  --primary-color: var(--color-primary);
 }
 
 @media (prefers-color-scheme: dark) {

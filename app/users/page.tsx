@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/Sidebar";
 import { Plus, Search, MoreHorizontal, MessageSquare, Edit2, Trash2, X, UserPlus, Shield, Mail, User, Lock, Calendar, Phone, Globe, MapPin, FileText, File, UploadCloud, CheckCircle2, LayersPlus } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { cn, compressImage } from "@/lib/utils";
 
 
 interface UserData {
@@ -261,7 +261,7 @@ export default function UsersPage() {
         <div className="min-h-screen bg-white dark:bg-black font-sans flex text-black dark:text-white selection:bg-slate-blue selection:text-white">
             <Sidebar />
 
-            <main className="flex-1 ml-24 p-10 max-w-[1400px] mx-auto">
+            <main className="flex-1 ml-24 p-10 w-full">
                 <div className="flex items-center justify-between mb-10">
                     <div className="flex items-center gap-12 flex-1">
                         <h1 className="text-[2.5rem] font-bold tracking-tight">Users</h1>
@@ -456,7 +456,7 @@ export default function UsersPage() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
+                                {/* <div className="space-y-2">
                                     <label className="text-xs font-bold text-ash uppercase tracking-widest pl-1">Document ID</label>
                                     <div className="relative">
                                         <Shield className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ash" />
@@ -468,7 +468,7 @@ export default function UsersPage() {
                                             className="w-full bg-secondary-white dark:bg-dark border border-ash/5 rounded-2xl py-3.5 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-slate-blue/20 transition-all text-sm font-bold"
                                         />
                                     </div>
-                                </div>
+                                </div> */}
 
                                 <div className="space-y-2">
                                     <label className="text-xs font-bold text-ash uppercase tracking-widest pl-1">Email Address</label>
@@ -517,8 +517,15 @@ export default function UsersPage() {
                                                 const file = e.target.files?.[0];
                                                 if (file) {
                                                     const reader = new FileReader();
-                                                    reader.onloadend = () => {
-                                                        setNewUser({ ...newUser, profilePic: reader.result as string });
+                                                    reader.onloadend = async () => {
+                                                        try {
+                                                            const compressed = await compressImage(file);
+                                                            setNewUser({ ...newUser, profilePic: compressed });
+                                                        } catch (error) {
+                                                            console.error("Compression failed:", error);
+                                                            // Fallback to original if compression fails
+                                                            setNewUser({ ...newUser, profilePic: reader.result as string });
+                                                        }
                                                     };
                                                     reader.readAsDataURL(file);
                                                 }
@@ -582,8 +589,14 @@ export default function UsersPage() {
                                                 const file = e.target.files?.[0];
                                                 if (file) {
                                                     const reader = new FileReader();
-                                                    reader.onloadend = () => {
-                                                        setSelectedUser({ ...selectedUser, profilePic: reader.result as string });
+                                                    reader.onloadend = async () => {
+                                                        try {
+                                                            const compressed = await compressImage(file);
+                                                            setSelectedUser({ ...selectedUser, profilePic: compressed });
+                                                        } catch (error) {
+                                                            console.error("Compression failed:", error);
+                                                            setSelectedUser({ ...selectedUser, profilePic: reader.result as string });
+                                                        }
                                                     };
                                                     reader.readAsDataURL(file);
                                                 }
@@ -619,7 +632,7 @@ export default function UsersPage() {
                                         />
                                     </div>
                                 </div>
-
+                                {/* 
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-ash uppercase tracking-[0.2em] ml-1">Document ID</label>
                                     <div className="relative">
@@ -632,7 +645,7 @@ export default function UsersPage() {
                                             className="w-full bg-secondary-white dark:bg-dark border border-ash/10 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-slate-blue transition-all text-sm font-bold"
                                         />
                                     </div>
-                                </div>
+                                </div> */}
 
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-ash uppercase tracking-[0.2em] ml-1">Package</label>
@@ -718,7 +731,7 @@ export default function UsersPage() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
+                                {/* <div className="space-y-2">
                                     <label className="text-[10px] font-black text-ash uppercase tracking-[0.2em] ml-1">Account Password</label>
                                     <div className="relative">
                                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ash" />
@@ -730,7 +743,7 @@ export default function UsersPage() {
                                             className="w-full bg-secondary-white dark:bg-dark border border-ash/10 rounded-2xl py-4 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-slate-blue transition-all text-sm font-bold"
                                         />
                                     </div>
-                                </div>
+                                </div> */}
 
                                 <div className="space-y-2 md:col-span-2">
                                     <label className="text-[10px] font-black text-ash uppercase tracking-[0.2em] ml-1">LinkedIn Profile Link</label>

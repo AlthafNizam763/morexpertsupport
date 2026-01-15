@@ -20,7 +20,8 @@ import {
     Mail,
     Shield,
     Activity,
-    Users
+    Users,
+    MapPin
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -121,248 +122,256 @@ export default function DashboardPage() {
         <div className="min-h-screen bg-white dark:bg-black font-sans flex text-zinc-900 dark:text-white selection:bg-slate-blue selection:text-white">
             <Sidebar />
 
-            <main className="flex-1 ml-24 p-10 max-w-[1600px] mx-auto">
-                <div className="flex items-center justify-between mb-10">
-                    <div className="flex items-center gap-12 flex-1">
-                        <h1 className="text-[2.5rem] font-bold tracking-tight">Dashboard</h1>
-                        <div className="relative max-w-sm w-full">
-                            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-400" />
-                            <input
-                                type="text"
-                                placeholder="Search"
-                                className="w-full bg-zinc-50 dark:bg-zinc-900/50 rounded-3xl py-4 pl-14 pr-6 text-sm focus:outline-none shadow-sm placeholder:text-zinc-400 border border-black/5 dark:border-white/5"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-6">
-                        <button className="w-12 h-12 bg-slate-blue text-white flex items-center justify-center rounded-2xl shadow-xl hover:scale-110 transition-transform">
-                            <Plus className="w-6 h-6" />
-                        </button>
-                        <Link href="/notifications" className="relative p-2">
-                            <Bell className="w-6 h-6 text-ash" />
-                            {notifications.some(n => !n.isRead) && (
-                                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-pink rounded-full border-2 border-white dark:border-black" />
-                            )}
-                        </Link>
-                        <div className="flex items-center gap-4 ml-4">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lucky" className="w-12 h-12 rounded-2xl bg-zinc-50 dark:bg-zinc-900 shadow-sm border border-black/5 dark:border-white/10" />
-                            <div className="hidden lg:block">
-                                <p className="text-sm font-bold leading-tight uppercase tracking-tight">Bondi R</p>
-                                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Support Lead</p>
+            <main className="flex-1 ml-24 p-8 w-full bg-gray-light min-h-screen">
+                {/* Header */}
+                <div className="flex items-center justify-end mb-8">
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3 bg-white p-1.5 pr-4 rounded-2xl shadow-sm">
+                            <div className="w-10 h-10 rounded-xl bg-slate-blue/10 flex items-center justify-center text-slate-blue">
+                                <Bell className="w-5 h-5" />
                             </div>
+                            {notifications.some(n => !n.isRead) && (
+                                <span className="w-2 h-2 bg-pink rounded-full" />
+                            )}
                         </div>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
-                    <div className="xl:col-span-8 space-y-10">
-                        {/* Recent Users Section */}
-                        <div>
-                            <div className="flex items-center justify-between mb-8">
-                                <h2 className="text-2xl font-bold tracking-tight">Recent Users</h2>
-                                <Link href="/users" className="flex items-center gap-2 bg-white dark:bg-zinc-900 px-5 py-2.5 rounded-2xl text-[13px] font-bold shadow-sm cursor-pointer border border-black/5 dark:border-white/10 hover:bg-zinc-50 transition-colors">
-                                    View All <ChevronDown className="w-4 h-4 text-zinc-400 -rotate-90" />
-                                </Link>
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                    <div className="xl:col-span-8 space-y-8">
+                        {/* Blue Banner */}
+                        <div className="relative bg-slate-blue rounded-[2rem] p-8 md:p-10 text-white overflow-hidden shadow-lg shadow-slate-blue/20">
+                            <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                            <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
+
+                            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8 h-full">
+                                <div className="space-y-4 max-w-lg">
+                                    <div className="flex items-center gap-2 text-blue-100 bg-white/10 w-fit px-4 py-1.5 rounded-full text-xs font-bold backdrop-blur-sm">
+                                        <Clock className="w-3.5 h-3.5" />
+                                        {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                    </div>
+                                    <h1 className="text-3xl md:text-4xl font-bold leading-tight">Good Day, Future Expert!</h1>
+                                    <p className="text-blue-100 font-medium">Have a nice {new Date().toLocaleDateString('en-US', { weekday: 'short' })}! Check your dashboard for latest updates.</p>
+                                </div>
+                                <div className="hidden md:block">
+                                    {/* Abstract Illustration Placeholder */}
+                                    <div className="w-48 h-48 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-md border border-white/20">
+                                        <User className="w-24 h-24 text-white opacity-90" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Stats Row */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col justify-between h-40 group hover:shadow-md transition-all">
+                                <div className="flex justify-between items-start">
+                                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Total Users</span>
+                                    <MoreHorizontal className="w-5 h-5 text-zinc-300" />
+                                </div>
+                                <div>
+                                    <div className="flex items-end gap-3 mb-2">
+                                        <span className="text-4xl font-bold text-slate-blue">{totalUsers}</span>
+                                        <span className="text-xs font-bold text-emerald-500 mb-1.5">+2%</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                        <div className="h-full bg-slate-blue w-[70%] rounded-full" />
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="space-y-3">
-                                {recentUsers.map((user) => (
-                                    <div
-                                        key={user._id}
-                                        className="flex items-center justify-between p-4 rounded-[2rem] hover:bg-ash/5 dark:hover:bg-ash/10 border border-transparent transition-all cursor-pointer group"
-                                    >
-                                        <div className="flex items-center gap-6">
-                                            <div className="relative">
-                                                {user.profilePic ? (
-                                                    <img src={user.profilePic} className="w-14 h-14 rounded-2xl object-cover bg-zinc-100" />
-                                                ) : (
-                                                    <div className="w-14 h-14 rounded-2xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                                                        <User className="w-6 h-6 text-zinc-400" />
-                                                    </div>
-                                                )}
-                                                <div className={cn("absolute -bottom-1 -right-1 w-4 h-4 border-2 border-white dark:border-black rounded-full", user.status === 'Active' ? 'bg-emerald-500' : 'bg-zinc-400')} />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-base">{user.name}</h4>
-                                                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">{user.email}</p>
-                                            </div>
-                                        </div>
+                            <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col justify-between h-40 group hover:shadow-md transition-all">
+                                <div className="flex justify-between items-start">
+                                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Active Users</span>
+                                    <MoreHorizontal className="w-5 h-5 text-zinc-300" />
+                                </div>
+                                <div>
+                                    <div className="flex items-end gap-3 mb-2">
+                                        <span className="text-4xl font-bold text-emerald-500">{activeUsers}</span>
+                                        <span className="text-xs font-bold text-emerald-500 mb-1.5">Online</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                        <div className="h-full bg-emerald-500 w-[45%] rounded-full" />
+                                    </div>
+                                </div>
+                            </div>
 
-                                        <div className="flex items-center gap-16">
-                                            <span className={cn(
-                                                "px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest",
-                                                getPackageStyles(user.package || "None")
-                                            )}>
-                                                {user.package || "No Package"}
-                                            </span>
-                                            <button className="p-2 text-zinc-300 hover:text-black dark:hover:text-white transition-colors">
-                                                <MoreHorizontal className="w-6 h-6" />
+                            <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col justify-between h-40 group hover:shadow-md transition-all">
+                                <div className="flex justify-between items-start">
+                                    <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Premium</span>
+                                    <MoreHorizontal className="w-5 h-5 text-zinc-300" />
+                                </div>
+                                <div>
+                                    <div className="flex items-end gap-3 mb-2">
+                                        <span className="text-4xl font-bold text-purple-500">{users.filter(u => u.package?.includes('Premium')).length}</span>
+                                        <span className="text-xs font-bold text-purple-500 mb-1.5">VIP</span>
+                                    </div>
+                                    <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                        <div className="h-full bg-purple-500 w-[60%] rounded-full" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Recent Users Section */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                            <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                                <div className="flex items-center justify-between mb-8">
+                                    <h2 className="text-lg font-bold tracking-tight text-slate-blue">Recent Activity</h2>
+                                </div>
+
+                                <div className="relative w-full aspect-square max-w-[250px] mx-auto mb-6 flex flex-col items-center justify-center">
+                                    <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                                        <circle cx="50" cy="50" r="42" fill="none" stroke="#F1F5F9" strokeWidth="8" />
+                                        <circle cx="50" cy="50" r="42" fill="none" stroke="#4D72F0" strokeWidth="8" strokeDasharray="264" strokeDashoffset={264 * (1 - (activityPercentage / 100))} strokeLinecap="round" />
+                                    </svg>
+                                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                        <span className="text-4xl font-black text-slate-800">{activityPercentage}%</span>
+                                        <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-1">Efficiency</span>
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-center gap-8">
+                                    <div className="text-center">
+                                        <div className="text-xl font-bold text-slate-800">{totalUsers}</div>
+                                        <div className="text-[10px] uppercase font-bold text-zinc-400">Total</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="text-xl font-bold text-emerald-500">{activeUsers}</div>
+                                        <div className="text-[10px] uppercase font-bold text-zinc-400">Active</div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                                <div className="flex items-center justify-between mb-8">
+                                    <h2 className="text-lg font-bold tracking-tight text-slate-blue">Recent Users</h2>
+                                    <Link href="/users" className="text-slate-blue font-bold text-xs hover:underline">See All</Link>
+                                </div>
+
+                                <div className="space-y-6">
+                                    {recentUsers.map((user) => (
+                                        <div key={user._id} className="flex items-center justify-between group">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-blue group-hover:bg-slate-blue group-hover:text-white transition-colors">
+                                                    {user.profilePic ? <img src={user.profilePic} className="w-full h-full rounded-2xl object-cover" /> : <User className="w-5 h-5" />}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-sm text-slate-800">{user.name}</h4>
+                                                    <p className="text-[11px] text-zinc-400 font-medium">{user.package || "No Package"}</p>
+                                                </div>
+                                            </div>
+                                            <button className="w-8 h-8 rounded-xl flex items-center justify-center text-zinc-300 hover:bg-slate-50 hover:text-slate-blue transition-colors">
+                                                <MoreHorizontal className="w-5 h-5" />
                                             </button>
                                         </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div className="xl:col-span-4 space-y-8">
+                        {/* Profile Card */}
+                        <div className="bg-slate-blue rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-lg shadow-slate-blue/20">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
+                            <div className="flex items-center justify-between mb-8 relative z-10">
+                                <h3 className="text-sm font-bold uppercase tracking-widest opacity-80">My Profile</h3>
+                                <button className="p-2 bg-white/10 rounded-xl hover:bg-white/20 transition-colors">
+                                    <Settings className="w-4 h-4" />
+                                </button>
+                            </div>
+
+                            <div className="relative z-10 text-center">
+                                <div className="w-24 h-24 mx-auto rounded-full border-4 border-white/20 p-1 mb-4">
+                                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=User" className="w-full h-full rounded-full bg-white" />
+                                </div>
+                                <h2 className="text-xl font-bold mb-1">Ajmal</h2>
+                                <p className="text-sm text-blue-100 uppercase tracking-widest font-medium">Owner</p>
+                                <div className="flex items-center justify-center gap-1.5 mt-2 text-blue-200">
+                                    <MapPin className="w-3 h-3" />
+                                    <span className="text-xs">Kulathupuzha, Kerala</span>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/10 relative z-10">
+                                <div className="text-center">
+                                    <span className="block text-xs text-blue-200 mb-1">Resumes</span>
+                                    <span className="block font-bold">124</span>
+                                </div>
+                                <div className="text-center border-l border-white/10">
+                                    <span className="block text-xs text-blue-200 mb-1">Templates</span>
+                                    <span className="block font-bold">12</span>
+                                </div>
+                                <div className="text-center border-l border-white/10">
+                                    <span className="block text-xs text-blue-200 mb-1">Downloads</span>
+                                    <span className="block font-bold">852</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Calendar Section (Live) */}
+                        <div className="bg-slate-blue rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-lg shadow-slate-blue/20">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="text-sm font-bold uppercase tracking-widest opacity-80">Calendar</h3>
+                                <div className="flex items-center gap-2 bg-black/20 rounded-lg px-3 py-1 text-xs font-bold">
+                                    <span>{new Date().toLocaleString('default', { month: 'long' })}</span>
+                                    <ChevronDown className="w-3 h-3" />
+                                </div>
+                            </div>
+                            <div className="flex justify-between items-center text-center">
+                                {(() => {
+                                    const today = new Date();
+                                    const currentDay = today.getDate();
+                                    // Start from Sunday of current week
+                                    const startOfWeek = new Date(today);
+                                    startOfWeek.setDate(today.getDate() - today.getDay());
+
+                                    return Array.from({ length: 7 }, (_, i) => {
+                                        const d = new Date(startOfWeek);
+                                        d.setDate(startOfWeek.getDate() + i);
+                                        const dayName = d.toLocaleDateString('default', { weekday: 'short' });
+                                        const dateNum = d.getDate();
+                                        const isToday = dateNum === currentDay && d.getMonth() === today.getMonth();
+
+                                        return (
+                                            <div key={i} className={cn("space-y-2 opacity-80", isToday && "opacity-100")}>
+                                                <span className="text-[10px] uppercase font-bold">{dayName}</span>
+                                                <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold", isToday && "bg-white text-slate-blue")}>
+                                                    {dateNum}
+                                                </div>
+                                            </div>
+                                        );
+                                    });
+                                })()}
+                            </div>
+                        </div>
+
+                        {/* Notifications / Scheduled Events */}
+                        <div className="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="text-lg font-bold tracking-tight text-slate-blue">Add Notification</h2>
+                                <MoreHorizontal className="w-5 h-5 text-zinc-300" />
+                            </div>
+                            <div className="space-y-6">
+                                {recentNotifications.map((notif, i) => (
+                                    <div key={notif._id} className="relative pl-6 border-l-2 border-slate-100 pb-2 last:pb-0">
+                                        <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-slate-blue border-2 border-white ring-1 ring-slate-100" />
+                                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mb-1">{notif.time}</p>
+                                        <h4 className="font-bold text-sm text-slate-800">{notif.title}</h4>
+                                        <p className="text-xs text-zinc-500 mt-1 truncate">{notif.description}</p>
                                     </div>
                                 ))}
-                                {recentUsers.length === 0 && (
-                                    <div className="p-8 text-center text-zinc-400 font-bold">No users found</div>
+                                {recentNotifications.length === 0 && (
+                                    <p className="text-center text-zinc-400 text-sm">No events scheduled.</p>
                                 )}
                             </div>
                         </div>
-
-                        {/* Recent Notifications Section */}
-                        <div className="grid lg:grid-cols-12 gap-10 items-start">
-                            <div className="lg:col-span-8">
-                                <div className="flex items-center justify-between mb-8">
-                                    <h2 className="text-2xl font-bold tracking-tight">Recent Notifications</h2>
-                                    <Link href="/notifications" className="text-xs font-bold text-zinc-400 hover:text-slate-blue transition-colors">View All</Link>
-                                </div>
-
-                                <div className="space-y-4">
-                                    {recentNotifications.map((notif) => (
-                                        <div key={notif._id} className="flex items-center justify-between p-4 bg-white dark:bg-black shadow-sm border border-ash/10 rounded-[1.75rem] group">
-                                            <div className="flex items-center gap-4">
-                                                <div className={cn(
-                                                    "w-12 h-12 rounded-2xl flex items-center justify-center",
-                                                    notif.type === 'offer' ? "bg-emerald-500/10 text-emerald-500" :
-                                                        notif.type === 'warning' ? "bg-amber-500/10 text-amber-500" :
-                                                            "bg-blue-500/10 text-blue-500"
-                                                )}>
-                                                    <Bell className="w-5 h-5" />
-                                                </div>
-                                                <div>
-                                                    <h4 className="font-bold text-sm">{notif.title}</h4>
-                                                    <p className="text-[11px] font-medium text-zinc-400 max-w-[200px] truncate">{notif.description}</p>
-                                                </div>
-                                            </div>
-                                            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">{notif.time}</span>
-                                        </div>
-                                    ))}
-                                    {recentNotifications.length === 0 && (
-                                        <div className="p-8 text-center text-zinc-400 font-bold bg-white dark:bg-zinc-900 rounded-[2rem] border border-ash/10">
-                                            Time for a coffee break ☕<br />No new notifications.
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Stats Card: Quick Add */}
-                            <div className="lg:col-span-4 h-full">
-                                <div className="bg-slate-blue text-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-blue/20 text-center flex flex-col items-center h-full border border-white/10 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-                                    <div className="relative mb-6">
-                                        <div className="w-20 h-20 rounded-[2rem] bg-white/20 flex items-center justify-center backdrop-blur-md">
-                                            <User className="w-8 h-8 text-white" />
-                                        </div>
-                                    </div>
-                                    <h3 className="text-lg font-black">{totalUsers} Users</h3>
-                                    <p className="text-[11px] text-white/60 font-bold uppercase tracking-widest mt-1 mb-8">Registered on Platform</p>
-                                    <Link href="/users" className="w-full py-4 bg-white text-slate-blue rounded-2xl font-black text-sm shadow-xl hover:scale-105 active:scale-95 transition-all mt-auto">
-                                        Manage Users
-                                    </Link>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-
-                    {/* Right Panel */}
-                    <div className="xl:col-span-4 space-y-10">
-                        <section className="bg-white dark:bg-black rounded-[3rem] p-10 border border-black/5 dark:border-white/10 shadow-sm">
-                            <div className="flex items-center justify-between mb-10">
-                                <h2 className="text-xl font-black">Quick Stats</h2>
-                                <Activity className="w-5 h-5 text-zinc-300" />
-                            </div>
-
-                            <div className="space-y-8">
-                                <div className="flex items-center justify-between group cursor-pointer">
-                                    <div className="flex items-center gap-5">
-                                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-blue-50 dark:bg-blue-900/20 text-blue-500">
-                                            <Users className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-sm tracking-tight">Total Users</h4>
-                                            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">{totalUsers} Registered</p>
-                                        </div>
-                                    </div>
-                                    <span className="font-black text-lg">{totalUsers}</span>
-                                </div>
-
-                                <div className="flex items-center justify-between group cursor-pointer">
-                                    <div className="flex items-center gap-5">
-                                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500">
-                                            <CheckCircle2 className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-sm tracking-tight">Active Users</h4>
-                                            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">{activeUsers} Online</p>
-                                        </div>
-                                    </div>
-                                    <span className="font-black text-lg">{activeUsers}</span>
-                                </div>
-
-                                <div className="flex items-center justify-between group cursor-pointer">
-                                    <div className="flex items-center gap-5">
-                                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-zinc-50 dark:bg-zinc-800 text-zinc-500">
-                                            <Shield className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-bold text-sm tracking-tight">Premium</h4>
-                                            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">
-                                                {users.filter(u => u.package?.includes('Premium')).length} Users
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <span className="font-black text-lg">{users.filter(u => u.package?.includes('Premium')).length}</span>
-                                </div>
-                            </div>
-
-                            <div className="mt-16">
-                                <h3 className="text-xl font-black mb-10">User Activity</h3>
-                                <div className="flex flex-col items-center">
-                                    <div className="relative w-48 h-48 mb-10">
-                                        <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-                                            <circle
-                                                cx="50" cy="50" r="42"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="10"
-                                                strokeDasharray="1 4"
-                                                className="text-zinc-100 dark:text-zinc-800"
-                                            />
-                                            <circle
-                                                cx="50" cy="50" r="42"
-                                                fill="none"
-                                                stroke="currentColor"
-                                                strokeWidth="12"
-                                                strokeDasharray="264"
-                                                strokeDashoffset={264 * (1 - (activityPercentage / 100))}
-                                                strokeLinecap="round"
-                                                className="text-slate-blue transition-all duration-1000 ease-out"
-                                            />
-                                        </svg>
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                                            <span className="text-[2.5rem] font-black tracking-tighter transition-all">{activityPercentage}%</span>
-                                            <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Active</span>
-                                        </div>
-                                    </div>
-
-                                    <div className="w-full space-y-4">
-                                        <div className="flex items-center justify-between px-1">
-                                            <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Platform Load</span>
-                                        </div>
-                                        <div className="h-2 w-full bg-ash/10 rounded-full overflow-hidden">
-                                            <motion.div
-                                                initial={{ width: 0 }}
-                                                animate={{ width: `${activityPercentage}%` }}
-                                                transition={{ duration: 1, ease: "easeOut" }}
-                                                className="h-full bg-slate-blue rounded-full"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                    </div>
-                </div>
-            </main>
-        </div>
+                </div >
+            </main >
+        </div >
     );
 }

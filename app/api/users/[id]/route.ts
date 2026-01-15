@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import User from "@/lib/models/User";
+import { db } from "@/lib/firebase";
 
 export async function PATCH(
     request: Request,
@@ -8,12 +7,20 @@ export async function PATCH(
 ) {
     try {
         const { id } = await params;
-        await dbConnect();
         const data = await request.json();
-        const user = await User.findByIdAndUpdate(id, data, { new: true });
-        if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
-        return NextResponse.json(user);
+        const userRef = db.collection('users').doc(id);
+
+        await userRef.update({
+            ...data,
+            updatedAt: new Date().toISOString()
+        });
+
+        const doc = await userRef.get();
+        if (!doc.exists) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+        return NextResponse.json({ _id: doc.id, ...doc.data() });
     } catch (error) {
+        console.error("Error updating user:", error);
         return NextResponse.json({ error: "Failed to update user" }, { status: 400 });
     }
 }
@@ -24,11 +31,16 @@ export async function DELETE(
 ) {
     try {
         const { id } = await params;
-        await dbConnect();
-        const user = await User.findByIdAndDelete(id);
-        if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+        const userRef = db.collection('users').doc(id);
+
+        // Check if exists first (optional, but good for consistent behavior)
+        const doc = await userRef.get();
+        if (!doc.exists) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+        await userRef.delete();
         return NextResponse.json({ message: "User deleted successfully" });
     } catch (error) {
+        console.error("Error deleting user:", error);
         return NextResponse.json({ error: "Failed to delete user" }, { status: 500 });
     }
 }
