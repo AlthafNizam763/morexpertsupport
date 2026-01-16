@@ -1,6 +1,10 @@
 import "./globals.css";
 import React from "react";
 
+import { Inter } from "next/font/google";
+
+const inter = Inter({ subsets: ["latin"] });
+
 export default function RootLayout({
   children,
 }: {
@@ -9,7 +13,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head />
-      <body suppressHydrationWarning>{children}</body>
+      <body suppressHydrationWarning className={inter.className}>{children}</body>
     </html>
   );
 }

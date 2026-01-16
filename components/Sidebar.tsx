@@ -25,7 +25,7 @@ export function Sidebar() {
     };
 
     return (
-        <div className="w-24 h-screen bg-slate-blue flex flex-col items-center py-10 fixed left-0 top-0 z-[60] shadow-xl">
+        <div className="w-24 h-screen bg-gradient-to-b from-[#1b72b5] to-[#0B1437] flex flex-col items-center py-10 fixed left-0 top-0 z-[60] shadow-2xl">
             <div className="mb-10">
                 <Menu className="w-6 h-6 text-white cursor-pointer hover:scale-110 transition-transform" />
             </div>
@@ -40,8 +40,8 @@ export function Sidebar() {
                             className={cn(
                                 "w-14 h-14 rounded-[1.25rem] flex items-center justify-center transition-all duration-300 group relative",
                                 isActive
-                                    ? "bg-white text-slate-blue shadow-lg scale-110"
-                                    : "text-white/70 hover:bg-white/10 hover:text-white"
+                                    ? "bg-white text-[#1b72b5] shadow-lg shadow-black/10 scale-110"
+                                    : "text-white/60 hover:bg-white/10 hover:text-white hover:scale-105"
                             )}
                         >
                             <item.icon className={cn("w-6 h-6", isActive ? "stroke-[2.5px]" : "stroke-[2px]")} />

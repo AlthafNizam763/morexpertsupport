@@ -19,8 +19,16 @@ type ConversationData = {
     userProfilePic: string;
     lastMessage?: string;
     lastMessageTime?: string;
-    status: "online" | "offline";
+    status: "online" | "offline" | "active";
     unreadCount: number;
+    updatedAt: string;
+};
+
+const isUserOnline = (updatedAt: string) => {
+    if (!updatedAt) return false;
+    const diff = Date.now() - new Date(updatedAt).getTime();
+    // Consider online if active in last 5 minutes (300000 ms)
+    return diff < 5 * 60 * 1000;
 };
 
 
@@ -105,6 +113,25 @@ export function SupportChat({ isFullHeight }: { isFullHeight?: boolean }) {
     useEffect(() => {
         if (activeId) {
             fetchMessages(activeId);
+
+            // Mark as read
+            const markAsRead = async () => {
+                try {
+                    await fetch("/api/chat/conversations", {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ conversationId: activeId })
+                    });
+
+                    // Update local state
+                    setConversations(prev => prev.map(c =>
+                        c._id === activeId ? { ...c, unreadCount: 0 } : c
+                    ));
+                } catch (error) {
+                    console.error("Failed to mark as read:", error);
+                }
+            };
+            markAsRead();
         }
     }, [activeId]);
 
@@ -134,16 +161,7 @@ export function SupportChat({ isFullHeight }: { isFullHeight?: boolean }) {
                 body: JSON.stringify(payload),
             });
             if (res.ok) {
-                const newMessage = await res.json();
-                setMessages(prev => [...prev, newMessage]);
-
-                // Update conversation's last message locally
-                setConversations(prev => prev.map(conv =>
-                    conv._id === activeId
-                        ? { ...conv, lastMessage: input, lastMessageTime: newMessage.timestamp }
-                        : conv
-                ));
-
+                // Listener will auto-update messages and conversation list
                 setInput("");
             }
         } catch (error) {
@@ -228,7 +246,7 @@ export function SupportChat({ isFullHeight }: { isFullHeight?: boolean }) {
                                 )}
                                 <div className={cn(
                                     "absolute -bottom-1 -right-1 w-4 h-4 border-2 border-white dark:border-black rounded-full",
-                                    conv.status === "online" ? "bg-emerald-500" : "bg-zinc-400"
+                                    isUserOnline(conv.updatedAt) ? "bg-emerald-500" : "bg-zinc-400"
                                 )} />
                             </div>
                             <div className="flex-1 text-left min-w-0">
@@ -265,10 +283,10 @@ export function SupportChat({ isFullHeight }: { isFullHeight?: boolean }) {
                             <div className="flex items-center gap-2.5 mt-1.5">
                                 <div className={cn(
                                     "w-2 h-2 rounded-full",
-                                    activeConversation?.status === "online" ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-zinc-400"
+                                    (activeConversation && isUserOnline(activeConversation.updatedAt)) ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-zinc-400"
                                 )} />
                                 <span className="text-[10px] text-ash font-black uppercase tracking-[0.2em]">
-                                    {activeConversation?.status === "online" ? "Active Now" : "Offline"}
+                                    {(activeConversation && isUserOnline(activeConversation.updatedAt)) ? "Active Now" : "Offline"}
                                 </span>
                             </div>
                         </div>

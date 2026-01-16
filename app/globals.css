@@ -15,13 +15,13 @@
   --color-red-light: #FEF3F2;
   --color-gray-light: #F4F7FE;
   /* Light blue-gray background */
-  --color-slate-blue: #4D72F0;
-  /* Royal Blue */
-  --color-stale: #7939EF;
-  --color-primary: #4D72F0;
+  /* Royal Blue -> Premium Blue */
+  --color-slate-blue: #1b72b5;
+  --color-stale: #155a8a;
+  --color-primary: #1b72b5;
   --color-secondary: #0B1437;
   /* Darker blue-black */
-  --color-accent: #4D72F0;
+  --color-accent: #1b72b5;
   --color-secondary-white: #F4F4F4;
   --color-secondary-dark: #3E3E3F;
   --color-dark: #242424;
@@ -41,8 +41,8 @@
 }
 
 html {
-  /* Screen size to 75% as requested */
-  zoom: 0.75;
+  /* Restored to 100% for correct responsiveness */
+  /* zoom: 0.75; Removed */
 }
 
 body {

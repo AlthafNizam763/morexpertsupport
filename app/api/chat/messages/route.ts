@@ -14,8 +14,10 @@ export async function GET(request: Request) {
     }
 
     try {
-        const snapshot = await db.collection('messages')
-            .where('conversationId', '==', conversationId)
+        // Mobile App uses subcollection: conversations/{userId}/messages
+        const snapshot = await db.collection('conversations')
+            .doc(conversationId)
+            .collection('messages')
             // .orderBy('createdAt', 'asc') // Removed to avoid index requirement
             .get();
 
@@ -52,7 +54,10 @@ export async function POST(request: Request) {
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
 
-        const docRef = await db.collection('messages').add(messageData);
+        const docRef = await db.collection('conversations')
+            .doc(data.conversationId)
+            .collection('messages')
+            .add(messageData);
         const message = { _id: docRef.id, ...messageData };
 
         // Update the conversation's last message

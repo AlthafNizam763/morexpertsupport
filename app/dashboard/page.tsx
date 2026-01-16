@@ -130,7 +130,7 @@ export default function DashboardPage() {
 
     const getPackageStyles = (pkg: string) => {
         switch (pkg) {
-            case "Silver": return "bg-gradient-to-br from-[#C0C0C0] to-[#8E8E8E] text-white";
+            case "Silver": return "bg-gradient-to-br from-[#1b72b5]/80 to-[#1b72b5]/60 text-white";
             case "Silver2": return "bg-gradient-to-br from-[#757575] to-[#424242] text-white";
             case "Golden": return "bg-gradient-to-br from-[#1A1A1A] to-[#0D0D0D] text-white";
             case "Golden2": return "bg-gradient-to-br from-[#F5A623] to-[#D48806] text-black";
@@ -162,7 +162,7 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
                     <div className="xl:col-span-8 space-y-8">
                         {/* Blue Banner */}
-                        <div className="relative bg-slate-blue rounded-[2rem] p-8 md:p-10 text-white overflow-hidden shadow-lg shadow-slate-blue/20">
+                        <div className="relative bg-gradient-to-br from-[#1b72b5] to-[#155a8a] rounded-[2rem] p-8 md:p-10 text-white overflow-hidden shadow-xl shadow-[#1b72b5]/20">
                             <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
                             <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-400/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
@@ -298,7 +298,7 @@ export default function DashboardPage() {
 
                     <div className="xl:col-span-4 space-y-8">
                         {/* Profile Card */}
-                        <div className="bg-slate-blue rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-lg shadow-slate-blue/20">
+                        <div className="bg-gradient-to-br from-[#1b72b5] to-[#0B1437] rounded-[2.5rem] p-8 text-white relative overflow-hidden shadow-xl shadow-[#1b72b5]/20">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
                             <div className="flex items-center justify-between mb-8 relative z-10">
                                 <h3 className="text-sm font-bold uppercase tracking-widest opacity-80">My Profile</h3>

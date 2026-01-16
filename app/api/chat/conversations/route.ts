@@ -8,12 +8,27 @@ export async function GET(request: Request) {
     const userId = searchParams.get("userId");
 
     try {
-        let query: FirebaseFirestore.Query = db.collection('conversations');
-
         if (userId) {
-            query = query.where('userId', '==', userId);
+            // Optimization: If userId is provided, the conversation ID IS the userId
+            const doc = await db.collection('conversations').doc(userId).get();
+            if (doc.exists) {
+                const data = doc.data()!;
+                // Sanitize single doc
+                const sanitized = {
+                    _id: doc.id,
+                    ...data,
+                    createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
+                    updatedAt: data.updatedAt?.toDate ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+                    lastMessageTime: typeof data.lastMessageTime === 'object' ? new Date((data.lastMessageTime._seconds || 0) * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : data.lastMessageTime
+                };
+                return NextResponse.json([sanitized]);
+            } else {
+                return NextResponse.json([]);
+            }
         }
 
+        // Admin View: Fetch all
+        const query = db.collection('conversations');
         // .orderBy('updatedAt', 'desc') // Removed to avoid index requirement
         const snapshot = await query.get();
         const conversations = snapshot.docs
@@ -45,14 +60,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "UserId is required" }, { status: 400 });
         }
 
-        // Check if conversation already exists for this user
-        // Note: Ideally we want one conversation per user for support chat
-        const existingSnapshot = await db.collection('conversations')
-            .where('userId', '==', userId)
-            .get();
+        const convRef = db.collection('conversations').doc(userId);
+        const doc = await convRef.get();
 
-        if (!existingSnapshot.empty) {
-            const doc = existingSnapshot.docs[0];
+        if (doc.exists) {
             return NextResponse.json({ _id: doc.id, ...doc.data() });
         }
 
@@ -68,11 +79,30 @@ export async function POST(request: Request) {
             updatedAt: new Date().toISOString()
         };
 
-        const docRef = await db.collection('conversations').add(newConv);
-        return NextResponse.json({ _id: docRef.id, ...newConv });
+        await convRef.set(newConv);
+        return NextResponse.json({ _id: userId, ...newConv });
 
     } catch (error) {
         console.error("Error creating conversation:", error);
         return NextResponse.json({ error: "Failed to create conversation" }, { status: 500 });
+    }
+}
+
+export async function PATCH(request: Request) {
+    try {
+        const { conversationId } = await request.json();
+
+        if (!conversationId) {
+            return NextResponse.json({ error: "Conversation ID is required" }, { status: 400 });
+        }
+
+        await db.collection('conversations').doc(conversationId).update({
+            unreadCount: 0
+        });
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error("Error updating conversation:", error);
+        return NextResponse.json({ error: "Failed to update conversation" }, { status: 500 });
     }
 }
