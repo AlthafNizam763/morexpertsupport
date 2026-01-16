@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Send, User, Search, MoreHorizontal, Check, CheckCheck, Home } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
+import { io } from "socket.io-client";
 import { cn } from "@/lib/utils";
 
 type Message = {
@@ -11,6 +12,7 @@ type Message = {
     role: "user" | "support";
     text: string;
     timestamp: string;
+    createdAt?: string;
 };
 
 type ConversationData = {
@@ -114,6 +116,37 @@ export function SupportChat({ isFullHeight }: { isFullHeight?: boolean }) {
         if (activeId) {
             fetchMessages(activeId);
 
+            // Connect to Socket.IO
+            const socket = io({
+                path: "/api/socket/io",
+                addTrailingSlash: false,
+            });
+
+            socket.on("connect", () => {
+                console.log("Socket connected:", socket.id);
+                socket.emit("join_conversation", activeId);
+            });
+
+            socket.on("new_message", (message: Message) => {
+                console.log("New message received via socket:", message);
+                // Only append if it belongs to the current conversation
+                // and avoid duplicates if we just sent it (though usually good to handle via ID check)
+                setMessages((prev) => {
+                    if (prev.some(m => m._id === message._id)) return prev;
+                    return [...prev, message];
+                });
+
+                // Update conversation last message in list locally
+                setConversations(prev => prev.map(c =>
+                    c._id === activeId ? {
+                        ...c,
+                        lastMessage: message.text,
+                        lastMessageTime: new Date(message.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        updatedAt: message.createdAt || new Date().toISOString()
+                    } : c
+                ));
+            });
+
             // Mark as read
             const markAsRead = async () => {
                 try {
@@ -132,6 +165,10 @@ export function SupportChat({ isFullHeight }: { isFullHeight?: boolean }) {
                 }
             };
             markAsRead();
+
+            return () => {
+                socket.disconnect();
+            };
         }
     }, [activeId]);
 
@@ -252,7 +289,11 @@ export function SupportChat({ isFullHeight }: { isFullHeight?: boolean }) {
                             <div className="flex-1 text-left min-w-0">
                                 <div className="flex items-center justify-between gap-2 mb-1.5">
                                     <h4 className="font-bold text-base truncate">{conv.userName}</h4>
-                                    <span className="text-[10px] text-ash font-bold uppercase tracking-wider">{conv.lastMessageTime}</span>
+                                    <span className="text-[10px] text-ash font-bold uppercase tracking-wider">
+                                        {conv.updatedAt
+                                            ? new Date(conv.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                            : conv.lastMessageTime}
+                                    </span>
                                 </div>
                                 <div className="flex items-center justify-between gap-2">
                                     <p className="text-sm text-ash truncate leading-relaxed">
@@ -326,7 +367,11 @@ export function SupportChat({ isFullHeight }: { isFullHeight?: boolean }) {
                                         {msg.text}
                                     </div>
                                     <div className="flex items-center gap-2.5 px-2">
-                                        <span className="text-[10px] text-ash font-black uppercase tracking-widest">{msg.timestamp}</span>
+                                        <span className="text-[10px] text-ash font-black uppercase tracking-widest">
+                                            {msg.createdAt
+                                                ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                                                : msg.timestamp}
+                                        </span>
                                         {msg.role === "support" && (
                                             <div className="flex text-emerald-500 scale-110">
                                                 <CheckCheck className="w-3 h-3" />
