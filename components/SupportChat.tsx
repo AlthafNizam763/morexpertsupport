@@ -368,9 +368,7 @@ export function SupportChat({ isFullHeight }: { isFullHeight?: boolean }) {
                                     </div>
                                     <div className="flex items-center gap-2.5 px-2">
                                         <span className="text-[10px] text-ash font-black uppercase tracking-widest">
-                                            {msg.createdAt
-                                                ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                                                : msg.timestamp}
+                                            {msg.timestamp}
                                         </span>
                                         {msg.role === "support" && (
                                             <div className="flex text-emerald-500 scale-110">

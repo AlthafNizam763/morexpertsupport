@@ -3,6 +3,25 @@ import { db } from "@/lib/firebase";
 
 export const dynamic = 'force-dynamic';
 
+function formatTimestamp(date: Date | string | number): string {
+    const d = new Date(date); // Handle Date object, ISO string, or timestamp number
+    if (isNaN(d.getTime())) return typeof date === 'string' ? date : '';
+
+    // Format: 20 January 2026 at 12:31:00 UTC+5:30
+    // en-GB typically outputs "20 January 2026 at 12:31:00" in Node/recent browsers
+    // We force Asia/Kolkata timezone
+    return d.toLocaleString('en-GB', {
+        timeZone: 'Asia/Kolkata',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+    }) + " UTC+5:30";
+}
+
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const conversationId = searchParams.get("conversationId");
@@ -31,7 +50,7 @@ export async function GET(request: Request) {
                     ...data,
                     // Safe convert potential Timestamps to strings
                     createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
-                    timestamp: typeof data.timestamp === 'object' ? new Date((data.timestamp._seconds || 0) * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : data.timestamp
+                    timestamp: formatTimestamp(data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAt || data.timestamp))
                 };
             })
             .sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
@@ -51,7 +70,7 @@ export async function POST(request: Request) {
         const messageData = {
             ...data,
             createdAt: new Date().toISOString(),
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            timestamp: formatTimestamp(new Date())
         };
 
         const docRef = await db.collection('conversations')
