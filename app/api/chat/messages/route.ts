@@ -3,25 +3,6 @@ import { db } from "@/lib/firebase";
 
 export const dynamic = 'force-dynamic';
 
-function formatTimestamp(date: Date | string | number): string {
-    const d = new Date(date); // Handle Date object, ISO string, or timestamp number
-    if (isNaN(d.getTime())) return typeof date === 'string' ? date : '';
-
-    // Format: 20 January 2026 at 12:31:00 UTC+5:30
-    // en-GB typically outputs "20 January 2026 at 12:31:00" in Node/recent browsers
-    // We force Asia/Kolkata timezone
-    return d.toLocaleString('en-GB', {
-        timeZone: 'Asia/Kolkata',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-    }) + " UTC+5:30";
-}
-
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const conversationId = searchParams.get("conversationId");
@@ -50,7 +31,9 @@ export async function GET(request: Request) {
                     ...data,
                     // Safe convert potential Timestamps to strings
                     createdAt: data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt,
-                    timestamp: formatTimestamp(data.createdAt?.toDate ? data.createdAt.toDate() : (data.createdAt || data.timestamp))
+                    // Return valid Date/Timestamp data, let JSON serialization handle stringification if needed,
+                    // or convert to date object if it's a Firestore Timestamp
+                    timestamp: data.timestamp?.toDate ? data.timestamp.toDate() : (data.timestamp ? new Date(data.timestamp) : new Date(data.createdAt?.toDate ? data.createdAt.toDate() : data.createdAt))
                 };
             })
             .sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
@@ -67,23 +50,27 @@ export async function POST(request: Request) {
         const data = await request.json();
         console.log("POST /api/chat/messages - Payload:", JSON.stringify(data));
 
+        // Use Date objects for Firestore (stored as Timestamp)
+        const now = new Date();
         const messageData = {
             ...data,
-            createdAt: new Date().toISOString(),
-            timestamp: formatTimestamp(new Date())
+            createdAt: now,
+            timestamp: now
         };
 
         const docRef = await db.collection('conversations')
             .doc(data.conversationId)
             .collection('messages')
             .add(messageData);
+
+        // For the response, we return the object. Date objects will be serialized to ISO strings by NextResponse.json
         const message = { _id: docRef.id, ...messageData };
 
         // Update the conversation's last message
         await db.collection('conversations').doc(data.conversationId).update({
             lastMessage: data.text,
-            lastMessageTime: message.timestamp,
-            updatedAt: new Date().toISOString()
+            lastMessageTime: now,
+            updatedAt: now
         });
 
         // Emit socket event
