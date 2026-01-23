@@ -46,6 +46,31 @@ export async function POST(request: Request) {
 
         await db.collection('users').doc(uid).set(userData);
 
+        // 3. Initialize Support Conversation
+        const now = new Date();
+        const welcomeMessage = "Hi, I am Supporter.";
+
+        await db.collection('conversations').doc(uid).set({
+            userId: uid,
+            userName: name,
+            userProfilePic: data.profilePic || "",
+            lastMessage: welcomeMessage,
+            lastMessageTime: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            unreadCount: 0,
+            status: "offline",
+            createdAt: now.toISOString(),
+            updatedAt: now.toISOString()
+        });
+
+        // 4. Send Welcome Message
+        await db.collection('conversations').doc(uid).collection('messages').add({
+            role: "support",
+            text: welcomeMessage,
+            sender: "MoRe Support",
+            createdAt: now,
+            timestamp: now
+        });
+
         const user = { _id: uid, ...userData };
 
         return NextResponse.json(user, { status: 201 });

@@ -21,6 +21,19 @@ const ioHandler = (req: NextApiRequest, res: any) => {
             }
         });
 
+        io.on("connection", (socket) => {
+            console.log("New socket connection:", socket.id);
+
+            socket.on("join_conversation", (conversationId) => {
+                console.log(`Socket ${socket.id} joining room: ${conversationId}`);
+                socket.join(conversationId);
+            });
+
+            socket.on("disconnect", () => {
+                console.log("Socket disconnected:", socket.id);
+            });
+        });
+
         res.socket.server.io = io;
         (global as any).io = io; // Attach to global for App Router access
     } else {
